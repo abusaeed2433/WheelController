@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"  >
+
+    <LinearLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="120dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvID"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_slab"
+            android:textSize="20sp"
+            tools:text="my wheelchair id" />
+
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/ivPower"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/shadow_up_ripple"
+        android:clickable="true"
+        android:contentDescription="@string/arrow"
+        android:focusable="true"
+        android:padding="8dp"
+        android:src="@drawable/baseline_power_settings_new_24"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout"
+        app:layout_constraintWidth_percent="0.25" />
+
+    <ProgressBar
+        android:visibility="invisible"
+        android:id="@+id/progressBar"
+        style="@android:style/Widget.ProgressBar.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/ivPower"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/ivPower"
+        app:layout_constraintTop_toTopOf="@+id/ivPower" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/shadow_back_down"
+        android:padding="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0.3"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ivPower"
+        app:layout_constraintWidth_percent="0.96">
+
+        <ImageView
+            android:id="@+id/ivRight"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:tint="@color/black"
+            android:background="@drawable/shadow_up_ripple"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="@string/arrow"
+            android:src="@drawable/baseline_arrow_right_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.3" />
+
+        <ImageView
+            android:id="@+id/ivBottom"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/shadow_up_ripple"
+            android:layout_marginBottom="8dp"
+            android:contentDescription="@string/arrow"
+            app:tint="@color/black"
+            android:src="@drawable/baseline_arrow_down_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintWidth_percent="0.3" />
+
+        <ImageView
+            android:id="@+id/ivStartStop"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_margin="12dp"
+            android:background="@drawable/shadow_up_ripple"
+            android:clickable="true"
+            android:contentDescription="@string/arrow"
+            android:focusable="true"
+            android:src="@drawable/baseline_play_arrow_24"
+            app:layout_constraintBottom_toTopOf="@+id/ivBottom"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toStartOf="@+id/ivRight"
+            app:layout_constraintStart_toEndOf="@+id/ivLeft"
+            app:layout_constraintTop_toBottomOf="@+id/ivTop"
+            app:tint="@color/black" />
+
+        <ImageView
+            android:id="@+id/ivLeft"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:tint="@color/black"
+            android:background="@drawable/shadow_up_ripple"
+            android:contentDescription="@string/arrow"
+            android:src="@drawable/baseline_arrow_left_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.3" />
+
+
+        <ImageView
+            android:id="@+id/ivTop"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/shadow_up_ripple"
+            android:contentDescription="@string/arrow"
+            android:src="@drawable/baseline_arrow_up_24"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.3"
+            app:tint="@color/black" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="neu_background_main">#f5ffff</color>
+    <color name="neu_top_left_main">#FFFFFF</color>
+    <color name="neu_bottom_right_main">#d0d9d9</color>
+
+    <color name="selected_color">#818181</color>
+    <color name="mask_color">#C1FCBD</color>
+    <color name="light_red">#F8AEAE</color>
+
+</resources>

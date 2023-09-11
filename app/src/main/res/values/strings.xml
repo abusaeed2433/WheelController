@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">WheelController</string>
+    <string name="arrow">Arrow</string>
+    <string name="enter_wheelchair_id">Enter wheelchair id</string>
+    <string name="continue_">Continue</string>
+    <string name="enter_wheelchair_password">Enter wheelchair password</string>
+    <string name="cancel">Cancel</string>
+</resources>
