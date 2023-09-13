@@ -8,12 +8,11 @@ import static com.example.wheelcontroller.enums.Command.RIGHT;
 import static com.example.wheelcontroller.enums.Command.SHUT_DOWN;
 import static com.example.wheelcontroller.enums.Command.STOP;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Dialog;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -24,8 +23,18 @@ import com.example.wheelcontroller.classes.DataSaver;
 import com.example.wheelcontroller.classes.Utility;
 import com.example.wheelcontroller.databinding.ActivityMainBinding;
 import com.example.wheelcontroller.enums.Command;
+import com.example.wheelcontroller.listener.DatabaseListener;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-import org.jetbrains.annotations.TestOnly;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -44,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setClickListener() {
-        binding.ivPower.setOnClickListener((View view) -> switchPowerMode(isConnected));
+        binding.ivPower.setOnClickListener((View view) -> switchPowerMode());
 
         binding.ivLeft.setOnClickListener((View view) -> startExecution(LEFT));
         binding.ivTop.setOnClickListener((View view) -> startExecution(FORWARD));
@@ -54,14 +63,48 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startExecution(Command toExecute){
+
         if(isProcessing) return;
+        if(!isConnected){
+            Utility.showSafeToast(this,"Connect first");
+            return;
+        }
+
         showOrHideProgress(true);
 
         updateBackground(toExecute);
 
 
+        showOrHideProgress(true);
+        saveCommand(toExecute, error -> {
+            showOrHideProgress(false);
+            if(error != null){
+                Utility.showSafeToast(this,error);
+            }
+        });
+
+    }
+
+    private void saveCommand(Command command,DatabaseListener listener){
+        String id = DataSaver.getInstance(this).getId();
 
 
+        Map<String,Object> map = new HashMap<>();
+
+        long utc = Instant.now().getEpochSecond();
+        map.put("time",utc);
+        map.put("command",command.getId());
+
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("commands")
+                .child(id).child("my_command");
+        ref.setValue(map).addOnCompleteListener(task -> {
+            if(task.isSuccessful()){
+               listener.onProcessDone(null);
+            }
+            else{
+                listener.onProcessDone("Failed");
+            }
+        });
     }
 
     private void updateBackground(Command command){
@@ -87,27 +130,45 @@ public class MainActivity extends AppCompatActivity {
             binding.ivStartStop.setImageResource(R.drawable.baseline_play_arrow_24);
     }
 
-    private void switchPowerMode(boolean curConnected) {
+    private void switchPowerMode() {
         if(isProcessing) return;
+
         showOrHideProgress(true);
-        if (curConnected) { // will disconnect
+        if (isConnected) { // will disconnect
             binding.ivPower.setImageResource(R.drawable.baseline_power_settings_new_24);
             // disconnect function
             showOrHideProgress(false);
             prevCommand = SHUT_DOWN;
+            isConnected = false;
         }
         else { // will connect
             if(DataSaver.getInstance(this).isIDPassNotSet()){
                 takeInputAndContinue();
             }
             else {
-                binding.ivPower.setImageResource(R.drawable.baseline_power_active_settings_new_24);
+                showOrHideProgress(true);
+                String id = DataSaver.getInstance(this).getId();
+                String pass = DataSaver.getInstance(this).getMyPass();
+                checkIDPass(id, pass, error -> {
+                    showOrHideProgress(false);
+                    if(error == null){ // successful
+                        Utility.showSafeToast(this,"Login successful");
+                        binding.ivPower.setImageResource(R.drawable.baseline_power_active_settings_new_24);
+                        DataSaver.getInstance(this).saveIdPass(id,pass);
+                        prevCommand = CONNECT;
+                    }
+                    else{
+                        Utility.showSafeToast(this,error);
+                    }
+                    isConnected = (error == null);
+                });
+                //binding.ivPower.setImageResource(R.drawable.baseline_power_active_settings_new_24);
                 //connect function
-                showOrHideProgress(false);
-                prevCommand = CONNECT;
+                //showOrHideProgress(false);
+                //prevCommand = CONNECT;
             }
         }
-        isConnected = !curConnected;
+
     }
 
     private void takeInputAndContinue(){
@@ -137,8 +198,22 @@ public class MainActivity extends AppCompatActivity {
             String pass = String.valueOf(editTextPass.getText()).trim();
             if(id.isEmpty() || pass.isEmpty()) return;
 
+            showOrHideProgress(true);
             dialog.dismiss();
-            checkIDPass(id,pass);
+            checkIDPass(id, pass, error -> {
+                showOrHideProgress(false);
+
+                if(error == null){ // successful
+                    Utility.showSafeToast(this,"Login successful");
+                    binding.ivPower.setImageResource(R.drawable.baseline_power_active_settings_new_24);
+                    DataSaver.getInstance(this).saveIdPass(id,pass);
+                    prevCommand = CONNECT;
+                }
+                else{
+                    Utility.showSafeToast(this,error);
+                }
+                isConnected = (error == null);
+            });
         });
 
         dialog.setCanceledOnTouchOutside(false);
@@ -146,15 +221,30 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void checkIDPass(String id, String pass){
-        //check if database
-        // if successful then
+    private void checkIDPass(String id, String pass, DatabaseListener listener){
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("commands").child(id);
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String originalPass = null;
+                if(snapshot.exists()){
+                    originalPass = String.valueOf(snapshot.child("pass").getValue());
+                }
 
-        Utility.showSafeToast(this,"Login successful");
-        binding.ivPower.setImageResource(R.drawable.baseline_power_active_settings_new_24);
-        showOrHideProgress(false);
-        DataSaver.getInstance(this).saveIdPass(id,pass);
-        prevCommand = CONNECT;
+                if(pass.equals(originalPass)){
+                    listener.onProcessDone(null);
+                }
+                else{
+                    listener.onProcessDone("Wrong password. Re-enter again");
+                    DataSaver.getInstance(MainActivity.this).clearIdPass();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                listener.onProcessDone(error.getMessage());
+            }
+        });
 
     }
 

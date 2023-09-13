@@ -31,6 +31,12 @@ public class DataSaver {
         return sp.getString("my_id",null);
     }
 
+    public void clearIdPass(){
+        SharedPreferences.Editor editor = sp.edit();
+        editor.remove("my_id");
+        editor.remove("my_pass");
+        editor.apply();
+    }
     public void saveIdPass(String id, String pass){
         SharedPreferences.Editor editor = sp.edit();
         editor.putString("my_id",id);

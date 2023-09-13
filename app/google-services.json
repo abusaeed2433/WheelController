@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "886318568491",
+    "firebase_url": "https://wheelcontroller-25adc-default-rtdb.firebaseio.com",
+    "project_id": "wheelcontroller-25adc",
+    "storage_bucket": "wheelcontroller-25adc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:886318568491:android:6040967c0ca0cefbbd866e",
+        "android_client_info": {
+          "package_name": "com.example.wheelcontroller"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDys-uAXF0uniP2Bl5sjStXivnLC3ILx4I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
