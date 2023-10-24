@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="AutoPainter">
+        <attr name="ratio" format="float"/>
+        <attr name="pathWidth" format="dimension"/>
+        <attr name="angle" format="integer"/>
+        <attr name="duration" format="integer"/>
+    </declare-styleable>
+
+</resources>

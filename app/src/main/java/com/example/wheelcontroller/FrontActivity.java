@@ -1,23 +1,28 @@
 package com.example.wheelcontroller;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.wheelcontroller.databinding.ActivityFrontBinding;
 
 public class FrontActivity extends AppCompatActivity {
+
+    private int progress = 0;
+    private ActivityFrontBinding binding = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_front);
+        binding = ActivityFrontBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+        binding.myProgress.setProgressListener(() -> {
             startActivity(new Intent(FrontActivity.this,MainActivity.class));
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        },1000);
+        });
 
     }
+
 }

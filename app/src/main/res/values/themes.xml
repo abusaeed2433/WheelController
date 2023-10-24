@@ -9,7 +9,7 @@
     <style name="Theme.WheelController" parent="Base.Theme.WheelController" />
 
     <style name="fullScreenActivity" parent="@style/Theme.AppCompat.DayNight.NoActionBar">
-        <item name="android:windowBackground">@drawable/wheelchair_splash</item>
+<!--        <item name="android:windowBackground">@drawable/wheelchair_splash</item>-->
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
         <item name="android:windowFullscreen">true</item>
