@@ -11,6 +11,7 @@ import static com.example.wheelcontroller.enums.Command.STOP;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.animation.ObjectAnimator;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.view.View;
@@ -54,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setClickListener() {
         binding.ivPower.setOnClickListener((View view) -> switchPowerMode());
+        binding.buttonShowConnection.setOnClickListener((View v) -> hideConnectionView(false));
 
         binding.ivLeft.setOnClickListener((View view) -> startExecution(LEFT));
         binding.ivTop.setOnClickListener((View view) -> startExecution(FORWARD));
@@ -133,11 +135,13 @@ public class MainActivity extends AppCompatActivity {
     private void switchPowerMode() {
         if(isProcessing) return;
 
+        binding.myProgress.startProgress();
         showOrHideProgress(true);
         if (isConnected) { // will disconnect
             binding.ivPower.setImageResource(R.drawable.baseline_power_settings_new_24);
             // disconnect function
             showOrHideProgress(false);
+            binding.myProgress.hideView();
             prevCommand = SHUT_DOWN;
             isConnected = false;
         }
@@ -150,6 +154,8 @@ public class MainActivity extends AppCompatActivity {
                 String id = DataSaver.getInstance(this).getId();
                 String pass = DataSaver.getInstance(this).getMyPass();
                 checkIDPass(id, pass, error -> {
+                    binding.myProgress.resetProgress();
+                    hideConnectionView(true);
                     showOrHideProgress(false);
                     if(error == null){ // successful
                         Utility.showSafeToast(this,"Login successful");
@@ -202,7 +208,8 @@ public class MainActivity extends AppCompatActivity {
             dialog.dismiss();
             checkIDPass(id, pass, error -> {
                 showOrHideProgress(false);
-
+                binding.myProgress.resetProgress();
+                hideConnectionView(true);
                 if(error == null){ // successful
                     Utility.showSafeToast(this,"Login successful");
                     binding.ivPower.setImageResource(R.drawable.baseline_power_active_settings_new_24);
@@ -248,16 +255,29 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void hideConnectionView(boolean shouldHide){
+        ObjectAnimator animator;
+        if(shouldHide){ // will hide
+            animator = ObjectAnimator.ofFloat(binding.rlConnection,View.Y,
+                    -binding.rlConnection.getHeight()-20f);
+        }
+        else{ // will show
+            animator = ObjectAnimator.ofFloat(binding.rlConnection,View.Y,
+                    0);
+        }
+        animator.setDuration(1500);
+        animator.start();
+    }
 
     private void showOrHideProgress(boolean show){
         if(binding == null) return;
 
-        if(show){
-            binding.progressBar.setVisibility(View.VISIBLE);
-        }
-        else{
-            binding.progressBar.setVisibility(View.INVISIBLE);
-        }
+//        if(show){
+//            binding.progressBar.setVisibility(View.VISIBLE);
+//        }
+//        else{
+//            binding.progressBar.setVisibility(View.INVISIBLE);
+//        }
         isProcessing = show;
     }
 

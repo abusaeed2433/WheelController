@@ -5,4 +5,7 @@
     <string name="continue_">Continue</string>
     <string name="enter_wheelchair_password">Enter wheelchair password</string>
     <string name="cancel">Cancel</string>
+    <string name="connect">Connect</string>
+    <string name="my_user_id">My user_id</string>
+    <string name="show">show</string>
 </resources>
