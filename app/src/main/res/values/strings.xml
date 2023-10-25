@@ -8,4 +8,9 @@
     <string name="connect">Connect</string>
     <string name="my_user_id">My user_id</string>
     <string name="show">show</string>
+    <string name="off">OFF</string>
+    <string name="on">ON</string>
+    <string name="not_connected">Not connected</string>
+    <string name="connected">Connected</string>
+    <string name="play_pause">play pause</string>
 </resources>

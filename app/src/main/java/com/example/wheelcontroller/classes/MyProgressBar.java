@@ -129,13 +129,15 @@ public class MyProgressBar extends View {
 
     public void startProgress(){
         forcedStop = false;
+        angle = 0;
         swipeAngle = 20f;
-        startAnimation();
         runLoop = true;
+        startAnimation();
     }
 
     public void hideView(){
         //resetProgress();
+        forcedStop = true;
         angle = 0;
         swipeAngle = 0f;
         runLoop = false;

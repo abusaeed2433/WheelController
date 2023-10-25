@@ -13,20 +13,33 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.animation.ObjectAnimator;
 import android.app.Dialog;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.example.wheelcontroller.classes.DataSaver;
 import com.example.wheelcontroller.classes.Utility;
 import com.example.wheelcontroller.databinding.ActivityMainBinding;
 import com.example.wheelcontroller.enums.Command;
 import com.example.wheelcontroller.listener.DatabaseListener;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.FileDataSource;
+import com.google.android.exoplayer2.util.Util;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -39,10 +52,14 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
+    private ImageView ivPlayPause;
+
     private ActivityMainBinding binding = null;
     private boolean isConnected = false;
     private boolean isProcessing = false;
     private Command prevCommand = null;
+    @SuppressWarnings("deprecation")
+    private SimpleExoPlayer simpleExoPlayer = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +67,13 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        initializeViews();
         setClickListener();
+        initializePlayer();
+    }
+
+    private void initializeViews(){
+        ivPlayPause = findViewById(R.id.ivPlayPause);
     }
 
     private void setClickListener() {
@@ -62,6 +85,55 @@ public class MainActivity extends AppCompatActivity {
         binding.ivRight.setOnClickListener((View view) -> startExecution(RIGHT));
         binding.ivBottom.setOnClickListener((View view) -> startExecution(BACKWARD));
         binding.ivStartStop.setOnClickListener((View view) -> startExecution(STOP));
+
+        // video player
+        ivPlayPause.setOnClickListener((View v)->{
+            if(simpleExoPlayer.isPlaying()){
+                ivPlayPause.setImageResource(R.drawable.ic_video_play_circle_filled_24);
+                simpleExoPlayer.setPlayWhenReady(false);
+            }
+            else{
+                ivPlayPause.setImageResource(R.drawable.ic_video_pause_24);
+                simpleExoPlayer.setPlayWhenReady(true);
+            }
+
+        });
+    }
+
+    @SuppressWarnings("deprecation")
+    private void initializePlayer() {
+        String url = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+
+        MediaSource mediaSource = getMediaSource( Uri.parse(url) );
+
+        simpleExoPlayer = new SimpleExoPlayer.Builder(this).build();
+        simpleExoPlayer.prepare(mediaSource);
+        binding.exoPlayer.setKeepScreenOn(true);
+
+
+        simpleExoPlayer.setPlayWhenReady(true);
+        binding.exoPlayer.setPlayer(simpleExoPlayer);
+
+        simpleExoPlayer.addListener(new Player.Listener() {
+            @Override
+            public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+                Player.Listener.super.onPlayerStateChanged(playWhenReady, playbackState);
+                if(playbackState == simpleExoPlayer.STATE_READY){
+                    binding.myProgressVideo.hideView();
+                    binding.myProgressVideo.setVisibility(View.GONE);
+                    binding.exoPlayer.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+    }
+
+    @SuppressWarnings("deprecation")
+    private MediaSource getMediaSource(Uri uri){
+        DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(this,
+                Util.getUserAgent(this,"exoplayer"));
+
+        DefaultExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
+        return new ProgressiveMediaSource.Factory(dataSourceFactory,extractorsFactory).createMediaSource(MediaItem.fromUri(uri));
     }
 
     private void startExecution(Command toExecute){
@@ -139,8 +211,11 @@ public class MainActivity extends AppCompatActivity {
         showOrHideProgress(true);
         if (isConnected) { // will disconnect
             binding.ivPower.setImageResource(R.drawable.baseline_power_settings_new_24);
+
             // disconnect function
             showOrHideProgress(false);
+
+            binding.tvConnectionStatus.setText(getString(R.string.not_connected));
             binding.myProgress.hideView();
             prevCommand = SHUT_DOWN;
             isConnected = false;
@@ -157,7 +232,9 @@ public class MainActivity extends AppCompatActivity {
                     binding.myProgress.resetProgress();
                     hideConnectionView(true);
                     showOrHideProgress(false);
+
                     if(error == null){ // successful
+                        binding.tvConnectionStatus.setText(getString(R.string.connected));
                         Utility.showSafeToast(this,"Login successful");
                         binding.ivPower.setImageResource(R.drawable.baseline_power_active_settings_new_24);
                         DataSaver.getInstance(this).saveIdPass(id,pass);
@@ -210,7 +287,9 @@ public class MainActivity extends AppCompatActivity {
                 showOrHideProgress(false);
                 binding.myProgress.resetProgress();
                 hideConnectionView(true);
+
                 if(error == null){ // successful
+                    binding.tvConnectionStatus.setText(getString(R.string.connected));
                     Utility.showSafeToast(this,"Login successful");
                     binding.ivPower.setImageResource(R.drawable.baseline_power_active_settings_new_24);
                     DataSaver.getInstance(this).saveIdPass(id,pass);
