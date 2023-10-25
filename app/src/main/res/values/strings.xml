@@ -6,7 +6,7 @@
     <string name="enter_wheelchair_password">Enter wheelchair password</string>
     <string name="cancel">Cancel</string>
     <string name="connect">Connect</string>
-    <string name="my_user_id">My user_id</string>
+    <string name="my_user_id">my user_id</string>
     <string name="show">show</string>
     <string name="off">OFF</string>
     <string name="on">ON</string>
@@ -16,6 +16,8 @@
     <string name="right">Right</string>
     <string name="down">Down</string>
     <string name="start">Start</string>
+    <string name="stop">Stop</string>
     <string name="left">Left</string>
     <string name="top">Top</string>
+    <string name="not_moving">Not moving</string>
 </resources>

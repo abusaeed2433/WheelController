@@ -129,20 +129,11 @@ public class MyProgressBar extends View {
 
     public void startProgress(){
         forcedStop = false;
-        angle = 0;
-        swipeAngle = 20f;
-        runLoop = true;
         startAnimation();
     }
 
     public void hideView(){
-        //resetProgress();
         forcedStop = true;
-        angle = 0;
-        swipeAngle = 0f;
-        runLoop = false;
-        setShader(0);
-        invalidate();
     }
 
     public void resetProgress(){
@@ -154,7 +145,7 @@ public class MyProgressBar extends View {
     }
 
     private void startAnimation(){
-        ValueAnimator animator = ValueAnimator.ofFloat(angle,-360);
+        ValueAnimator animator = ValueAnimator.ofFloat(0,-360);
         animator.setDuration(duration);
         animator.addUpdateListener(animation -> {
             angle = (float) animation.getAnimatedValue();

@@ -15,9 +15,6 @@ import android.animation.ObjectAnimator;
 import android.app.Dialog;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -36,9 +33,7 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.util.Util;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -60,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
     private Command prevCommand = null;
     @SuppressWarnings("deprecation")
     private SimpleExoPlayer simpleExoPlayer = null;
+    @SuppressWarnings("deprecation")
+    private Player.Listener videoListener = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,9 +64,9 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        initializeVideoListener();
         initializeViews();
         setClickListener();
-        initializePlayer();
     }
 
     private void initializeViews(){
@@ -90,41 +87,51 @@ public class MainActivity extends AppCompatActivity {
         ivPlayPause.setOnClickListener((View v)->{
             if(simpleExoPlayer.isPlaying()){
                 ivPlayPause.setImageResource(R.drawable.ic_video_play_circle_filled_24);
+                binding.tvStartStop.setText(getString(R.string.start));
                 simpleExoPlayer.setPlayWhenReady(false);
             }
             else{
                 ivPlayPause.setImageResource(R.drawable.ic_video_pause_24);
+                binding.tvStartStop.setText(getString(R.string.stop));
                 simpleExoPlayer.setPlayWhenReady(true);
             }
 
         });
+
     }
 
     @SuppressWarnings("deprecation")
-    private void initializePlayer() {
-        String url = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
-
-        MediaSource mediaSource = getMediaSource( Uri.parse(url) );
-
-        simpleExoPlayer = new SimpleExoPlayer.Builder(this).build();
-        simpleExoPlayer.prepare(mediaSource);
-        binding.exoPlayer.setKeepScreenOn(true);
-
-
-        simpleExoPlayer.setPlayWhenReady(true);
-        binding.exoPlayer.setPlayer(simpleExoPlayer);
-
-        simpleExoPlayer.addListener(new Player.Listener() {
+    private void initializeVideoListener(){
+        videoListener = new Player.Listener() {
             @Override
             public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
                 Player.Listener.super.onPlayerStateChanged(playWhenReady, playbackState);
                 if(playbackState == simpleExoPlayer.STATE_READY){
-                    binding.myProgressVideo.hideView();
                     binding.myProgressVideo.setVisibility(View.GONE);
                     binding.exoPlayer.setVisibility(View.VISIBLE);
                 }
             }
-        });
+        };
+    }
+
+    @SuppressWarnings("deprecation")
+    private void startPlayer() {
+
+        binding.myProgressVideo.setVisibility(View.VISIBLE);
+        binding.exoPlayer.setVisibility(View.INVISIBLE);
+
+        if(simpleExoPlayer == null) {
+            simpleExoPlayer = new SimpleExoPlayer.Builder(this).build();
+            binding.exoPlayer.setKeepScreenOn(true);
+            binding.exoPlayer.setPlayer(simpleExoPlayer);
+            simpleExoPlayer.addListener(videoListener);
+        }
+
+        String url = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+
+        MediaSource mediaSource = getMediaSource( Uri.parse(url) );
+        simpleExoPlayer.prepare(mediaSource);
+        simpleExoPlayer.setPlayWhenReady(true);
     }
 
     @SuppressWarnings("deprecation")
@@ -183,10 +190,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateBackground(Command command){
         if(binding == null) return;
-        binding.llLeft.setBackgroundResource(R.drawable.shadow_up_ripple);
-        binding.llTop.setBackgroundResource(R.drawable.shadow_up_ripple);
-        binding.llRight.setBackgroundResource(R.drawable.shadow_up_ripple);
-        binding.llBottom.setBackgroundResource(R.drawable.shadow_up_ripple);
+        binding.llLeft.setBackgroundResource(R.drawable.direction_background);
+        binding.llTop.setBackgroundResource(R.drawable.direction_background);
+        binding.llRight.setBackgroundResource(R.drawable.direction_background);
+        binding.llBottom.setBackgroundResource(R.drawable.direction_background);
 
         binding.ivStartStop.setImageResource(R.drawable.baseline_pause_24);
 
@@ -319,6 +326,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if(pass.equals(originalPass)){
                     listener.onProcessDone(null);
+                    binding.tvID.setText(id);
                 }
                 else{
                     listener.onProcessDone("Wrong password. Re-enter again");
@@ -339,6 +347,8 @@ public class MainActivity extends AppCompatActivity {
         if(shouldHide){ // will hide
             animator = ObjectAnimator.ofFloat(binding.rlConnection,View.Y,
                     -binding.rlConnection.getHeight()-20f);
+            binding.clRoot.setVisibility(View.VISIBLE);
+            startPlayer();
         }
         else{ // will show
             animator = ObjectAnimator.ofFloat(binding.rlConnection,View.Y,
@@ -360,4 +370,9 @@ public class MainActivity extends AppCompatActivity {
         isProcessing = show;
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        simpleExoPlayer.release();
+    }
 }

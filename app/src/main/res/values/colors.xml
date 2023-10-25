@@ -3,6 +3,7 @@
     <color name="black">#FF000000</color>
     <color name="blue">#0000ff</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="very_light_white">#B3FFFFFF</color>
 
     <color name="neu_background_main">#f5ffff</color>
     <color name="neu_top_left_main">#FFFFFF</color>
@@ -11,5 +12,7 @@
     <color name="selected_color">#818181</color>
     <color name="mask_color">#C1FCBD</color>
     <color name="light_red">#F8AEAE</color>
+
+    <color name="background_color">#161616</color>
 
 </resources>
