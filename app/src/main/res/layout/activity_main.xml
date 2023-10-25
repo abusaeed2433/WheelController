@@ -94,6 +94,7 @@
                 android:layout_marginStart="8dp"
                 android:text="@string/my_user_id"
                 android:textColor="@color/black"
+                android:gravity="center"
                 android:textSize="20sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/buttonShowConnection"

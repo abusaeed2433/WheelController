@@ -352,7 +352,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if(pass.equals(originalPass)){
                     listener.onProcessDone(null,name);
-                    binding.tvID.setText(id);
+                    binding.tvID.setText(name);
                 }
                 else{
                     listener.onProcessDone("Wrong password. Re-enter again",null);
@@ -375,24 +375,18 @@ public class MainActivity extends AppCompatActivity {
                     -binding.rlConnection.getHeight()-20f);
             binding.clRoot.setVisibility(View.VISIBLE);
             startPlayer();
+            animator.setDuration(1500);
         }
         else{ // will show
             animator = ObjectAnimator.ofFloat(binding.rlConnection,View.Y,
                     0);
+            animator.setDuration(750);
         }
-        animator.setDuration(1500);
         animator.start();
     }
 
     private void showOrHideProgress(boolean show){
         if(binding == null) return;
-
-//        if(show){
-//            binding.progressBar.setVisibility(View.VISIBLE);
-//        }
-//        else{
-//            binding.progressBar.setVisibility(View.INVISIBLE);
-//        }
         isProcessing = show;
     }
 
