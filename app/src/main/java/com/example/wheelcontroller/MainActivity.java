@@ -12,10 +12,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -62,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
     @SuppressWarnings("deprecation")
     private Player.Listener videoListener = null;
 
+    private boolean isDoublePressedOnceWithinTime = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,6 +108,9 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
+        //
+        binding.rlGesture.setOnClickListener(v -> hideConnectionView(true));
+
     }
 
     @SuppressWarnings("deprecation")
@@ -117,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
     }
+
 
     @SuppressWarnings("deprecation")
     private void startPlayer() {
@@ -218,6 +228,7 @@ public class MainActivity extends AppCompatActivity {
         if(isProcessing) return;
 
         if (isConnected) { // will disconnect
+            binding.rlGesture.setVisibility(View.GONE);
             binding.myProgress.startProgress();
             binding.ivPower.setImageResource(R.drawable.baseline_power_settings_new_24);
 
@@ -244,10 +255,11 @@ public class MainActivity extends AppCompatActivity {
 
                 checkIDPass(id, pass, (error,name) -> {
                     showOrHideProgress(false);
-
                     if(error == null){ // successful
+                        binding.rlGesture.setVisibility(View.VISIBLE);
                         binding.myProgress.resetProgress();
                         hideConnectionView(true);
+                        startPlayer();
                         binding.tvConnectionStatus.setText(getString(R.string.connected));
                         Utility.showSafeToast(this,"Login successful");
                         binding.ivPower.setImageResource(R.drawable.baseline_power_active_settings_new_24);
@@ -314,9 +326,10 @@ public class MainActivity extends AppCompatActivity {
                 if(error == null){ // successful
 
                     dialog.dismiss();
-
+                    binding.rlGesture.setVisibility(View.VISIBLE);
                     binding.myProgress.resetProgress();
                     hideConnectionView(true);
+                    startPlayer();
                     binding.tvConnectionStatus.setText(getString(R.string.connected));
 
                     Utility.showSafeToast(this,"Login successful");
@@ -374,7 +387,6 @@ public class MainActivity extends AppCompatActivity {
             animator = ObjectAnimator.ofFloat(binding.rlConnection,View.Y,
                     -binding.rlConnection.getHeight()-20f);
             binding.clRoot.setVisibility(View.VISIBLE);
-            startPlayer();
             animator.setDuration(1500);
         }
         else{ // will show
@@ -388,6 +400,18 @@ public class MainActivity extends AppCompatActivity {
     private void showOrHideProgress(boolean show){
         if(binding == null) return;
         isProcessing = show;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(isDoublePressedOnceWithinTime){
+            super.onBackPressed();
+        }
+        else{
+            Utility.showSafeToast(this,"Press again to exit");
+            isDoublePressedOnceWithinTime = true;
+            new Handler(Looper.getMainLooper()).postDelayed(() -> isDoublePressedOnceWithinTime = false,2000);
+        }
     }
 
     @Override

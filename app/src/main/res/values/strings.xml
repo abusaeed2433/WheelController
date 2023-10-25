@@ -22,5 +22,6 @@
     <string name="not_moving">Not moving</string>
     <string name="enter_credentials_and_continue">Enter credentials and continue</string>
     <string name="logging_in">Logging-in…</string>
+    <string name="swipe_up_icon">Swipe up icon</string>
 
 </resources>
