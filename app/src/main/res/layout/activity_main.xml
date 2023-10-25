@@ -117,10 +117,13 @@
             android:id="@+id/relativeLayout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_margin="8dp"
+            android:padding="4dp"
+            android:background="@drawable/video_view_background"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHeight_percent="0.3"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent" >
 
             <com.example.wheelcontroller.classes.MyProgressBar
                 android:id="@+id/myProgressVideo"
@@ -148,107 +151,173 @@
         </RelativeLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/constraintLayout2"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@drawable/shadow_back_down"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:padding="12dp"
+            android:layout_marginTop="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/relativeLayout"
-            app:layout_constraintVertical_bias="0.3"
-            app:layout_constraintWidth_percent="0.96">
+            app:layout_constraintTop_toBottomOf="@+id/relativeLayout" >
 
-            <ImageView
-                android:id="@+id/ivRight"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/shadow_up_ripple"
-                android:clickable="true"
-                android:contentDescription="@string/arrow"
-                android:focusable="true"
-                android:src="@drawable/baseline_arrow_right_24"
+            <LinearLayout
+                android:id="@+id/llRight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/direction_background"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="12dp"
+                android:layout_marginStart="12dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintDimensionRatio="1:1"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintWidth_percent="0.3"
-                app:tint="@color/black" />
+                app:layout_constraintStart_toEndOf="@+id/llStartStop"
+                app:layout_constraintTop_toTopOf="parent">
 
-            <ImageView
-                android:id="@+id/ivBottom"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/shadow_up_ripple"
-                android:clickable="true"
-                android:contentDescription="@string/arrow"
-                android:focusable="true"
-                android:src="@drawable/baseline_arrow_down_24"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintDimensionRatio="1:1"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintWidth_percent="0.3"
-                app:tint="@color/black" />
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:contentDescription="@string/arrow"
+                    android:src="@drawable/ic_all_direction"
+                    app:tint="#BB00FF" />
 
-            <ImageView
-                android:id="@+id/ivStartStop"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_margin="12dp"
-                android:background="@drawable/shadow_up_ripple"
-                android:clickable="true"
-                android:contentDescription="@string/arrow"
-                android:focusable="true"
-                android:src="@drawable/baseline_play_arrow_24"
-                app:layout_constraintBottom_toTopOf="@+id/ivBottom"
-                app:layout_constraintDimensionRatio="1:1"
-                app:layout_constraintEnd_toStartOf="@+id/ivRight"
-                app:layout_constraintStart_toEndOf="@+id/ivLeft"
-                app:layout_constraintTop_toBottomOf="@+id/ivTop"
-                app:tint="@color/black" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/right"
+                    android:textAllCaps="true"
+                    android:textColor="@color/black"
+                    android:textStyle="bold" />
 
-            <ImageView
-                android:id="@+id/ivLeft"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/shadow_up_ripple"
-                android:clickable="true"
-                android:contentDescription="@string/arrow"
-                android:focusable="true"
-                android:src="@drawable/baseline_arrow_left_24"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintDimensionRatio="1:1"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintWidth_percent="0.3"
-                app:tint="@color/black" />
+            </LinearLayout>
 
-
-            <ImageView
-                android:id="@+id/ivTop"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/shadow_up_ripple"
-                android:clickable="true"
-                android:contentDescription="@string/arrow"
-                android:focusable="true"
-                android:src="@drawable/baseline_arrow_up_24"
-                app:layout_constraintDimensionRatio="1:1"
+            <LinearLayout
+                android:id="@+id/llBottom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/direction_background"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="12dp"
+                android:layout_marginTop="12dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintWidth_percent="0.3"
-                app:tint="@color/black" />
+                app:layout_constraintTop_toBottomOf="@+id/llStartStop" >
+
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:contentDescription="@string/arrow"
+                    android:rotation="90"
+                    android:src="@drawable/ic_all_direction"
+                    app:tint="#CC0000" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/down"
+                    android:textAllCaps="true"
+                    android:textColor="@color/black"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llStartStop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/direction_background"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/ivStartStop"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:contentDescription="@string/arrow"
+                    android:src="@drawable/ic_all_direction"
+                    app:tint="#000000" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/start"
+                    android:textAllCaps="true"
+                    android:textColor="@color/black"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llLeft"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/direction_background"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="12dp"
+                android:layout_marginEnd="12dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/llStartStop"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:contentDescription="@string/arrow"
+                    android:rotation="180"
+                    android:src="@drawable/ic_all_direction"
+                    app:tint="#25AC00" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/left"
+                    android:textAllCaps="true"
+                    android:textColor="@color/black"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llTop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/direction_background"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="12dp"
+                android:layout_marginBottom="12dp"
+                app:layout_constraintBottom_toTopOf="@+id/llStartStop"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" >
+
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:contentDescription="@string/arrow"
+                    android:rotation="270"
+                    android:src="@drawable/ic_all_direction"
+                    app:tint="#0048C8"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/top"
+                    android:textAllCaps="true"
+                    android:textColor="@color/black"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -80,10 +80,10 @@ public class MainActivity extends AppCompatActivity {
         binding.ivPower.setOnClickListener((View view) -> switchPowerMode());
         binding.buttonShowConnection.setOnClickListener((View v) -> hideConnectionView(false));
 
-        binding.ivLeft.setOnClickListener((View view) -> startExecution(LEFT));
-        binding.ivTop.setOnClickListener((View view) -> startExecution(FORWARD));
-        binding.ivRight.setOnClickListener((View view) -> startExecution(RIGHT));
-        binding.ivBottom.setOnClickListener((View view) -> startExecution(BACKWARD));
+        binding.llLeft.setOnClickListener((View view) -> startExecution(LEFT));
+        binding.llTop.setOnClickListener((View view) -> startExecution(FORWARD));
+        binding.llRight.setOnClickListener((View view) -> startExecution(RIGHT));
+        binding.llBottom.setOnClickListener((View view) -> startExecution(BACKWARD));
         binding.ivStartStop.setOnClickListener((View view) -> startExecution(STOP));
 
         // video player
@@ -183,22 +183,22 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateBackground(Command command){
         if(binding == null) return;
-        binding.ivLeft.setBackgroundResource(R.drawable.shadow_up_ripple);
-        binding.ivTop.setBackgroundResource(R.drawable.shadow_up_ripple);
-        binding.ivRight.setBackgroundResource(R.drawable.shadow_up_ripple);
-        binding.ivBottom.setBackgroundResource(R.drawable.shadow_up_ripple);
+        binding.llLeft.setBackgroundResource(R.drawable.shadow_up_ripple);
+        binding.llTop.setBackgroundResource(R.drawable.shadow_up_ripple);
+        binding.llRight.setBackgroundResource(R.drawable.shadow_up_ripple);
+        binding.llBottom.setBackgroundResource(R.drawable.shadow_up_ripple);
 
         binding.ivStartStop.setImageResource(R.drawable.baseline_pause_24);
 
         if(command == LEFT)
-            binding.ivLeft.setBackgroundResource(R.drawable.shadow_up_selected_ripple);
+            binding.llLeft.setBackgroundResource(R.drawable.shadow_up_selected_ripple);
         if(command == FORWARD)
-            binding.ivTop.setBackgroundResource(R.drawable.shadow_up_selected_ripple);
+            binding.llTop.setBackgroundResource(R.drawable.shadow_up_selected_ripple);
 
         if(command == RIGHT)
-            binding.ivRight.setBackgroundResource(R.drawable.shadow_up_selected_ripple);
+            binding.llRight.setBackgroundResource(R.drawable.shadow_up_selected_ripple);
         if(command == BACKWARD)
-            binding.ivBottom.setBackgroundResource(R.drawable.shadow_up_selected_ripple);
+            binding.llBottom.setBackgroundResource(R.drawable.shadow_up_selected_ripple);
 
         if(command == STOP)
             binding.ivStartStop.setImageResource(R.drawable.baseline_play_arrow_24);
