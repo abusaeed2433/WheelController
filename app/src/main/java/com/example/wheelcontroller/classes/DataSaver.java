@@ -30,17 +30,22 @@ public class DataSaver {
     public String getId(){
         return sp.getString("my_id",null);
     }
+    public String getName(){
+        return sp.getString("my_name",null);
+    }
 
     public void clearIdPass(){
         SharedPreferences.Editor editor = sp.edit();
         editor.remove("my_id");
         editor.remove("my_pass");
+        editor.remove("my_name");
         editor.apply();
     }
-    public void saveIdPass(String id, String pass){
+    public void saveIdPass(String id, String pass,String name){
         SharedPreferences.Editor editor = sp.edit();
         editor.putString("my_id",id);
         editor.putString("my_pass",pass);
+        editor.putString("my_name",name);
         editor.apply();
     }
 

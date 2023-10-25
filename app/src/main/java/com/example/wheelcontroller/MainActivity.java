@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.animation.ObjectAnimator;
 import android.app.Dialog;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -21,11 +22,14 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.example.wheelcontroller.classes.DataSaver;
 import com.example.wheelcontroller.classes.Utility;
 import com.example.wheelcontroller.databinding.ActivityMainBinding;
 import com.example.wheelcontroller.enums.Command;
+import com.example.wheelcontroller.listener.CommandListener;
 import com.example.wheelcontroller.listener.DatabaseListener;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
@@ -86,14 +90,14 @@ public class MainActivity extends AppCompatActivity {
         // video player
         ivPlayPause.setOnClickListener((View v)->{
             if(simpleExoPlayer.isPlaying()){
+                simpleExoPlayer.setPlayWhenReady(false);
                 ivPlayPause.setImageResource(R.drawable.ic_video_play_circle_filled_24);
                 binding.tvStartStop.setText(getString(R.string.start));
-                simpleExoPlayer.setPlayWhenReady(false);
             }
             else{
+                simpleExoPlayer.setPlayWhenReady(true);
                 ivPlayPause.setImageResource(R.drawable.ic_video_pause_24);
                 binding.tvStartStop.setText(getString(R.string.stop));
-                simpleExoPlayer.setPlayWhenReady(true);
             }
 
         });
@@ -155,7 +159,6 @@ public class MainActivity extends AppCompatActivity {
 
         updateBackground(toExecute);
 
-
         showOrHideProgress(true);
         saveCommand(toExecute, error -> {
             showOrHideProgress(false);
@@ -166,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void saveCommand(Command command,DatabaseListener listener){
+    private void saveCommand(Command command, CommandListener listener){
         String id = DataSaver.getInstance(this).getId();
 
 
@@ -214,15 +217,16 @@ public class MainActivity extends AppCompatActivity {
     private void switchPowerMode() {
         if(isProcessing) return;
 
-        binding.myProgress.startProgress();
-        showOrHideProgress(true);
         if (isConnected) { // will disconnect
+            binding.myProgress.startProgress();
             binding.ivPower.setImageResource(R.drawable.baseline_power_settings_new_24);
 
+            showOrHideProgress(true);
             // disconnect function
             showOrHideProgress(false);
 
             binding.tvConnectionStatus.setText(getString(R.string.not_connected));
+
             binding.myProgress.hideView();
             prevCommand = SHUT_DOWN;
             isConnected = false;
@@ -232,19 +236,22 @@ public class MainActivity extends AppCompatActivity {
                 takeInputAndContinue();
             }
             else {
+                binding.myProgress.startProgress();
                 showOrHideProgress(true);
+
                 String id = DataSaver.getInstance(this).getId();
                 String pass = DataSaver.getInstance(this).getMyPass();
-                checkIDPass(id, pass, error -> {
-                    binding.myProgress.resetProgress();
-                    hideConnectionView(true);
+
+                checkIDPass(id, pass, (error,name) -> {
                     showOrHideProgress(false);
 
                     if(error == null){ // successful
+                        binding.myProgress.resetProgress();
+                        hideConnectionView(true);
                         binding.tvConnectionStatus.setText(getString(R.string.connected));
                         Utility.showSafeToast(this,"Login successful");
                         binding.ivPower.setImageResource(R.drawable.baseline_power_active_settings_new_24);
-                        DataSaver.getInstance(this).saveIdPass(id,pass);
+                        DataSaver.getInstance(this).saveIdPass(id,pass,name);
                         prevCommand = CONNECT;
                     }
                     else{
@@ -268,44 +275,61 @@ public class MainActivity extends AppCompatActivity {
         Window window = dialog.getWindow();
         if(window != null){
             window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            window.setWindowAnimations(R.style.dialogAnimation);
+            window.setBackgroundDrawable(new ColorDrawable(0));
         }
 
-        EditText editTextID, editTextPass;
+        ProgressBar progressBar = dialog.findViewById(R.id.progressBarDialog);
+        TextView tvMessage = dialog.findViewById(R.id.tvMessageDialog);
 
-        editTextID = dialog.findViewById(R.id.editTextID);
-        editTextPass = dialog.findViewById(R.id.editTextPass);
+        EditText editTextID = dialog.findViewById(R.id.editTextID);
+        EditText editTextPass = dialog.findViewById(R.id.editTextPass);
 
         Button buttonCancel = dialog.findViewById(R.id.buttonCancel);
         Button buttonContinue = dialog.findViewById(R.id.buttonContinue);
 
-        buttonCancel.setOnClickListener(view -> {
-            showOrHideProgress(false);
-            dialog.dismiss();
-        });
+        boolean[] isProcessing = {false};
+
+        buttonCancel.setOnClickListener(view -> dialog.dismiss());
 
         buttonContinue.setOnClickListener(view -> {
+
+            if(isProcessing[0]) return;
+
             String id = String.valueOf(editTextID.getText()).trim();
             String pass = String.valueOf(editTextPass.getText()).trim();
             if(id.isEmpty() || pass.isEmpty()) return;
 
+            isProcessing[0] = true;
             showOrHideProgress(true);
-            dialog.dismiss();
-            checkIDPass(id, pass, error -> {
+            progressBar.setVisibility(View.VISIBLE);
+            binding.tvID.setText(getString(R.string.logging_in));
+
+            checkIDPass(id, pass, (error,name) -> {
+                isProcessing[0] = false;
+
                 showOrHideProgress(false);
-                binding.myProgress.resetProgress();
-                hideConnectionView(true);
+                isConnected = (error == null);
 
                 if(error == null){ // successful
+
+                    dialog.dismiss();
+
+                    binding.myProgress.resetProgress();
+                    hideConnectionView(true);
                     binding.tvConnectionStatus.setText(getString(R.string.connected));
+
                     Utility.showSafeToast(this,"Login successful");
+
                     binding.ivPower.setImageResource(R.drawable.baseline_power_active_settings_new_24);
-                    DataSaver.getInstance(this).saveIdPass(id,pass);
+                    DataSaver.getInstance(this).saveIdPass(id,pass,name);
                     prevCommand = CONNECT;
                 }
                 else{
-                    Utility.showSafeToast(this,error);
+                    progressBar.setVisibility(View.INVISIBLE);
+                    tvMessage.setText(error);
                 }
-                isConnected = (error == null);
+
             });
         });
 
@@ -315,28 +339,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void checkIDPass(String id, String pass, DatabaseListener listener){
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("commands").child(id);
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("users").child(id);
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 String originalPass = null;
+                String name = null;
                 if(snapshot.exists()){
-                    originalPass = String.valueOf(snapshot.child("pass").getValue());
+                    originalPass = String.valueOf(snapshot.child("password").getValue());
+                    name = String.valueOf(snapshot.child("name").getValue());
                 }
 
                 if(pass.equals(originalPass)){
-                    listener.onProcessDone(null);
+                    listener.onProcessDone(null,name);
                     binding.tvID.setText(id);
                 }
                 else{
-                    listener.onProcessDone("Wrong password. Re-enter again");
+                    listener.onProcessDone("Wrong password. Re-enter again",null);
                     DataSaver.getInstance(MainActivity.this).clearIdPass();
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                listener.onProcessDone(error.getMessage());
+                listener.onProcessDone(error.getMessage(),null);
             }
         });
 
@@ -375,4 +401,5 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         simpleExoPlayer.release();
     }
+
 }
