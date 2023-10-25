@@ -193,6 +193,15 @@
 
             </RelativeLayout>
 
+            <ImageView
+                android:id="@+id/ivSpeech"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/baseline_mic_24"
+                app:layout_constraintBottom_toBottomOf="@+id/rlMessage"
+                app:layout_constraintEnd_toEndOf="@+id/rlMessage"
+                app:layout_constraintTop_toTopOf="@+id/rlMessage" />
+
             <RelativeLayout
                 android:id="@+id/rlMessage"
                 android:layout_width="match_parent"

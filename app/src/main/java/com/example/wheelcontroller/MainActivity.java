@@ -10,14 +10,22 @@ import static com.example.wheelcontroller.enums.Command.STOP;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.app.Dialog;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -48,6 +56,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
     private Player.Listener videoListener = null;
 
     private boolean isDoublePressedOnceWithinTime = false;
+    private DatabaseReference historyRef = null;
+    private SpeechRecognizer speechRecognizer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +88,8 @@ public class MainActivity extends AppCompatActivity {
         initializeVideoListener();
         initializeViews();
         setClickListener();
+        initializeReferences();
+        initializeSpeechPart();
     }
 
     private void initializeViews(){
@@ -109,6 +124,9 @@ public class MainActivity extends AppCompatActivity {
         //
         binding.rlGesture.setOnClickListener(v -> hideConnectionView(true));
 
+        // speech
+        binding.ivSpeech.setOnClickListener((View v)-> startAudio());
+
     }
 
     @SuppressWarnings("deprecation")
@@ -125,6 +143,10 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
+    private void initializeReferences(){
+        historyRef = FirebaseDatabase.getInstance().getReference().child("history");
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+    }
 
     @SuppressWarnings("deprecation")
     private void startPlayer() {
@@ -187,9 +209,8 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void saveCommand(Command command, CommandListener listener){
+    private synchronized void saveCommand(Command command, CommandListener listener){
         String id = DataSaver.getInstance(this).getId();
-
 
         Map<String,Object> map = new HashMap<>();
 
@@ -201,12 +222,40 @@ public class MainActivity extends AppCompatActivity {
                 .child(id).child("my_command");
         ref.setValue(map).addOnCompleteListener(task -> {
             if(task.isSuccessful()){
-               listener.onProcessDone(null);
+                saveHistory(command);
+                listener.onProcessDone(null);
             }
             else{
                 listener.onProcessDone("Failed");
             }
         });
+    }
+
+    private synchronized void saveHistory(Command command){
+        Map<String,Object> map = new HashMap<>();
+
+        long utc = Instant.now().getEpochSecond();
+        map.put("time",utc);
+        map.put("command",command.getId());
+        map.put("command_in_text",command.getCommandInText());
+
+        String id = DataSaver.getInstance(this).getId();
+        String date = getFormattedDate();
+        historyRef.child(id).child(date).push().setValue(map);
+
+    }
+
+
+    private String getFormattedDate(){
+        try {
+            LocalDate localDate = LocalDate.now();
+            String pattern = "dd-MM-yyyy";
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+            return formatter.format(localDate);
+        }catch (Exception ignored){
+            return "not_found";
+        }
+
     }
 
     private void updateBackgroundAndMessage(Command command){
@@ -260,7 +309,7 @@ public class MainActivity extends AppCompatActivity {
             binding.ivPower.setImageResource(R.drawable.baseline_power_settings_new_24);
 
             showOrHideProgress(true);
-            // disconnect function
+            // disconnect function. clean-up redundant
             showOrHideProgress(false);
 
             binding.tvConnectionStatus.setText(getString(R.string.not_connected));
@@ -305,7 +354,6 @@ public class MainActivity extends AppCompatActivity {
                 //prevCommand = CONNECT;
             }
         }
-
     }
 
     private void takeInputAndContinue(){
@@ -429,6 +477,73 @@ public class MainActivity extends AppCompatActivity {
     private void showOrHideProgress(boolean show){
         if(binding == null) return;
         isProcessing = show;
+    }
+
+    private void startAudio(){
+        Intent speechIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        speechRecognizer.startListening(speechIntent);
+    }
+
+    private void initializeSpeechPart(){
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, 101);
+        }
+        speechRecognizer.setRecognitionListener(new RecognitionListener() {
+            @Override
+            public void onReadyForSpeech(Bundle params) {
+
+            }
+
+            @Override
+            public void onBeginningOfSpeech() {
+
+            }
+
+            @Override
+            public void onRmsChanged(float rmsdB) {
+
+            }
+
+            @Override
+            public void onBufferReceived(byte[] buffer) {
+
+            }
+
+            @Override
+            public void onEndOfSpeech() {
+
+            }
+
+            @Override
+            public void onError(int error) {
+
+            }
+
+            @Override
+            public void onResults(Bundle results) {
+                ArrayList<String> data = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                System.out.println("speech data "+data);
+                String word = data.get(0); // get first match
+                if ("move left".equalsIgnoreCase(word)) {
+                    // Execute your 'move left' logic
+                } else if ("move right".equalsIgnoreCase(word)) {
+                    // Execute your 'move right' logic
+                }
+            }
+
+            @Override
+            public void onPartialResults(Bundle partialResults) {
+
+            }
+
+            @Override
+            public void onEvent(int eventType, Bundle params) {
+
+            }
+        });
+
+
     }
 
     @Override
