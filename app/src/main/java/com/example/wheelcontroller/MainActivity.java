@@ -12,14 +12,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.animation.ObjectAnimator;
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -91,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         binding.llTop.setOnClickListener((View view) -> startExecution(FORWARD));
         binding.llRight.setOnClickListener((View view) -> startExecution(RIGHT));
         binding.llBottom.setOnClickListener((View view) -> startExecution(BACKWARD));
-        binding.ivStartStop.setOnClickListener((View view) -> startExecution(STOP));
+        binding.llStartStop.setOnClickListener((View view) -> startExecution(STOP));
 
         // video player
         ivPlayPause.setOnClickListener((View v)->{
@@ -167,12 +165,22 @@ public class MainActivity extends AppCompatActivity {
 
         showOrHideProgress(true);
 
-        updateBackground(toExecute);
+        updateBackgroundAndMessage(toExecute);
+
+        if(toExecute == STOP){
+            binding.tvStartStop.setText(getString(R.string.stopped));
+        }
+        else{
+            binding.tvStartStop.setText(getString(R.string.running));
+        }
 
         showOrHideProgress(true);
         saveCommand(toExecute, error -> {
             showOrHideProgress(false);
-            if(error != null){
+            if(error == null) {
+                showMessageText(toExecute);
+            }
+            else{
                 Utility.showSafeToast(this,error);
             }
         });
@@ -201,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void updateBackground(Command command){
+    private void updateBackgroundAndMessage(Command command){
         if(binding == null) return;
         binding.llLeft.setBackgroundResource(R.drawable.direction_background);
         binding.llTop.setBackgroundResource(R.drawable.direction_background);
@@ -212,16 +220,35 @@ public class MainActivity extends AppCompatActivity {
 
         if(command == LEFT)
             binding.llLeft.setBackgroundResource(R.drawable.shadow_up_selected_ripple);
+
         if(command == FORWARD)
             binding.llTop.setBackgroundResource(R.drawable.shadow_up_selected_ripple);
 
         if(command == RIGHT)
             binding.llRight.setBackgroundResource(R.drawable.shadow_up_selected_ripple);
+
         if(command == BACKWARD)
             binding.llBottom.setBackgroundResource(R.drawable.shadow_up_selected_ripple);
 
-        if(command == STOP)
+        if(command == STOP) {
             binding.ivStartStop.setImageResource(R.drawable.baseline_play_arrow_24);
+            binding.tvStartStop.setText(getString(R.string.stopped));
+            showMessageText(STOP);
+        }
+    }
+
+    private void showMessageText(Command command){
+        if(binding == null) return;
+
+        String text = null;
+
+        if(command == LEFT) text  = "Moving left";
+        else if(command == FORWARD) text = "Moving forward";
+        else if(command == RIGHT) text = "Moving right";
+        else if(command == BACKWARD) text = "Moving backward";
+        else if(command == STOP) text = "Not moving";
+
+        binding.tvMessage.setText(text);
     }
 
     private void switchPowerMode() {
@@ -259,6 +286,7 @@ public class MainActivity extends AppCompatActivity {
                         binding.rlGesture.setVisibility(View.VISIBLE);
                         binding.myProgress.resetProgress();
                         hideConnectionView(true);
+                        updateBackgroundAndMessage(STOP);
                         startPlayer();
                         binding.tvConnectionStatus.setText(getString(R.string.connected));
                         Utility.showSafeToast(this,"Login successful");
@@ -329,6 +357,7 @@ public class MainActivity extends AppCompatActivity {
                     binding.rlGesture.setVisibility(View.VISIBLE);
                     binding.myProgress.resetProgress();
                     hideConnectionView(true);
+                    updateBackgroundAndMessage(STOP);
                     startPlayer();
                     binding.tvConnectionStatus.setText(getString(R.string.connected));
 
