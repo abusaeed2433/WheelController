@@ -1,17 +1,10 @@
 package com.example.wheelcontroller;
 
 import static com.example.wheelcontroller.enums.Command.BACKWARD;
-import static com.example.wheelcontroller.enums.Command.CONNECT;
 import static com.example.wheelcontroller.enums.Command.FORWARD;
 import static com.example.wheelcontroller.enums.Command.LEFT;
 import static com.example.wheelcontroller.enums.Command.RIGHT;
-import static com.example.wheelcontroller.enums.Command.SHUT_DOWN;
 import static com.example.wheelcontroller.enums.Command.STOP;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.animation.ObjectAnimator;
@@ -35,6 +28,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.example.wheelcontroller.classes.DataSaver;
 import com.example.wheelcontroller.classes.Utility;
@@ -66,18 +64,14 @@ import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
-
-    private ImageView ivPlayPause;
-
     private ActivityMainBinding binding = null;
+    private ImageView ivPlayPause;
     private boolean isConnected = false;
     private boolean isProcessing = false;
-    private Command prevCommand = null;
     @SuppressWarnings("deprecation")
     private SimpleExoPlayer simpleExoPlayer = null;
     @SuppressWarnings("deprecation")
     private Player.Listener videoListener = null;
-
     private boolean isDoublePressedOnceWithinTime = false;
     private DatabaseReference historyRef = null;
     private SpeechRecognizer speechRecognizer;
@@ -85,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
     private boolean isSpeechStarting = false;
     private final List<String> VOICE_COMMANDS = Arrays.asList("go left","go right","go forward","go backward","terminate");
     private final List<String> COMMANDS_MESSAGE  = Arrays.asList("Moving left", "Moving forward", "Moving right", "Moving backward", "Not moving" );
-
     private boolean stopSpeechInput = false;
 
     @Override
@@ -349,7 +342,6 @@ public class MainActivity extends AppCompatActivity {
                 binding.tvConnectionStatus.setText(getString(R.string.not_connected));
 
                 binding.myProgress.hideView();
-                prevCommand = SHUT_DOWN;
                 isConnected = false;
             });
 
@@ -378,17 +370,12 @@ public class MainActivity extends AppCompatActivity {
                         Utility.showSafeToast(this,"Login successful");
                         binding.ivPower.setImageResource(R.drawable.baseline_power_active_settings_new_24);
                         DataSaver.getInstance(this).saveIdPass(id,pass,name);
-                        prevCommand = CONNECT;
                     }
                     else{
                         Utility.showSafeToast(this,error);
                     }
                     isConnected = (error == null);
                 });
-                //binding.ivPower.setImageResource(R.drawable.baseline_power_active_settings_new_24);
-                //connect function
-                //showOrHideProgress(false);
-                //prevCommand = CONNECT;
             }
         }
     }
@@ -483,7 +470,6 @@ public class MainActivity extends AppCompatActivity {
 
                     binding.ivPower.setImageResource(R.drawable.baseline_power_active_settings_new_24);
                     DataSaver.getInstance(this).saveIdPass(id,pass,name);
-                    prevCommand = CONNECT;
                 }
                 else{
                     progressBar.setVisibility(View.INVISIBLE);
@@ -745,4 +731,3 @@ public class MainActivity extends AppCompatActivity {
     }
 
 }
-
