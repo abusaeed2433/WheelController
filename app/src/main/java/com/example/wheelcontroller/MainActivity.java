@@ -338,17 +338,22 @@ public class MainActivity extends AppCompatActivity {
         if (isConnected) { // will disconnect
             binding.rlGesture.setVisibility(View.GONE);
             binding.myProgress.startProgress();
-            binding.ivPower.setImageResource(R.drawable.baseline_power_settings_new_24);
-
             showOrHideProgress(true);
-            // disconnect function. clean-up redundant
-            showOrHideProgress(false);
 
-            binding.tvConnectionStatus.setText(getString(R.string.not_connected));
+            disconnectAndCleanUp( error ->{
+                if(error != null){
+                    Utility.showSafeToast(this,"Logged out without cleanup");
+                }
+                showOrHideProgress(false);
+                binding.ivPower.setImageResource(R.drawable.baseline_power_settings_new_24);
+                binding.tvConnectionStatus.setText(getString(R.string.not_connected));
 
-            binding.myProgress.hideView();
-            prevCommand = SHUT_DOWN;
-            isConnected = false;
+                binding.myProgress.hideView();
+                prevCommand = SHUT_DOWN;
+                isConnected = false;
+            });
+
+
         }
         else { // will connect
             if(DataSaver.getInstance(this).isIDPassNotSet()){
@@ -386,6 +391,39 @@ public class MainActivity extends AppCompatActivity {
                 //prevCommand = CONNECT;
             }
         }
+    }
+
+    private void disconnectAndCleanUp(CommandListener listener){
+        String id = DataSaver.getInstance(this).getId();
+
+        DatabaseReference ref = historyRef.child(id).child(getFormattedDate());
+
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                long total = dataSnapshot.getChildrenCount();
+                long cur = 0;
+
+                for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                    String key = childSnapshot.getKey();
+
+                    if( key == null) continue;
+                    if( total - cur > 10 ){
+                        ref.child(key).removeValue();
+                    }
+                    cur++;
+                }
+
+                listener.onProcessDone(null);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                listener.onProcessDone("Failed to cleanup");
+            }
+        });
+
     }
 
     private void takeInputAndContinue(){
