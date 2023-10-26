@@ -26,6 +26,7 @@ import android.os.Looper;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -59,7 +60,9 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
@@ -78,6 +81,12 @@ public class MainActivity extends AppCompatActivity {
     private boolean isDoublePressedOnceWithinTime = false;
     private DatabaseReference historyRef = null;
     private SpeechRecognizer speechRecognizer;
+    private Intent speechIntent;
+    private boolean isSpeechStarting = false;
+    private final List<String> VOICE_COMMANDS = Arrays.asList("go left","go right","go forward","go backward","terminate");
+    private final List<String> COMMANDS_MESSAGE  = Arrays.asList("Moving left", "Moving forward", "Moving right", "Moving backward", "Not moving" );
+
+    private boolean stopSpeechInput = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
 
         // speech
         binding.ivSpeech.setOnClickListener((View v)-> startAudio());
+        binding.llSpeechRunning.setOnClickListener((View v) -> stopAudio());
 
     }
 
@@ -178,8 +188,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startExecution(Command toExecute){
-
-        if(isProcessing) return;
+        if(isProcessing || toExecute == null) return;
         if(!isConnected){
             Utility.showSafeToast(this,"Connect first");
             return;
@@ -297,6 +306,29 @@ public class MainActivity extends AppCompatActivity {
         else if(command == BACKWARD) text = "Moving backward";
         else if(command == STOP) text = "Not moving";
 
+        binding.tvMessage.setTextColor(getColor(R.color.black));
+        binding.tvMessage.setText(text);
+    }
+
+
+    private void showMessageText(Command command,String defText){
+        if(binding == null) return;
+
+        String text = null;
+
+        if(command == LEFT) text  = "Moving left";
+        else if(command == FORWARD) text = "Moving forward";
+        else if(command == RIGHT) text = "Moving right";
+        else if(command == BACKWARD) text = "Moving backward";
+        else if(command == STOP) text = "Not moving";
+
+        if(text == null) {
+            text = defText;
+            binding.tvMessage.setTextColor(getColor(R.color.light_red));
+        }
+        else{
+            binding.tvMessage.setTextColor(getColor(R.color.black));
+        }
         binding.tvMessage.setText(text);
     }
 
@@ -479,20 +511,121 @@ public class MainActivity extends AppCompatActivity {
         isProcessing = show;
     }
 
+    public static int levenshteinRecursive(String str1, String str2, int m, int n) {
+        if (m == 0) return n;
+
+        if (n == 0) return m;
+
+        if (str1.charAt(m - 1) == str2.charAt(n - 1)) {
+            return levenshteinRecursive(str1, str2, m - 1, n - 1);
+        }
+
+        return 1 + Math.min(
+                // Insert
+                levenshteinRecursive(str1, str2, m, n - 1),
+                Math.min(
+                        // Remove
+                        levenshteinRecursive(str1, str2, m - 1, n),
+
+                        // Replace
+                        levenshteinRecursive(str1, str2, m - 1, n - 1)
+                )
+        );
+    }
+
+
+    private void processVoiceCommand(List<String> voices){
+
+        if(voices == null || voices.isEmpty()) {
+            showMessageText(null,"No command matched");
+            return;
+        }
+
+        String strCommand = voices.get(0);
+        Command realCommand = null;
+
+        Pair<Integer,Integer> minPoint = new Pair<>(Integer.MAX_VALUE,-1); // minDif, index
+
+        for(int i=0; i < VOICE_COMMANDS.size(); i++) {
+
+            String definedCommand = VOICE_COMMANDS.get(i);
+
+            int minDif = Integer.MAX_VALUE;
+
+            for(String cmd : voices) {
+                cmd = cmd.toLowerCase().trim();
+                minDif = Math.min( minDif,levenshteinRecursive(definedCommand, cmd, definedCommand.length(), cmd.length()) );
+            }
+
+            if( minDif < minPoint.first ){
+                minPoint = new Pair<>( minDif , i );
+            }
+        }
+
+        if( minPoint.second != -1 ){
+            strCommand = COMMANDS_MESSAGE.get( minPoint.second );
+            realCommand = getRealCommand( minPoint.second );
+        }
+
+        startExecution(realCommand);
+        showMessageText(realCommand,strCommand);
+    }
+
+
+    private Command getRealCommand(int index){
+        index++;
+
+        if(index == 1) return LEFT;
+        if(index == 2) return RIGHT;
+        if(index == 3) return FORWARD;
+        if(index == 4) return BACKWARD;
+
+        return STOP;
+    }
+
+    private void stopAudio(){
+        if(isSpeechStarting) {
+            Utility.showSafeToast(this,getString(R.string.please_wait));
+            return;
+        }
+
+        stopSpeechInput = true;
+        speechRecognizer.stopListening();
+        binding.llSpeechRunning.setVisibility(View.INVISIBLE);
+        binding.pbSpeech.setVisibility(View.INVISIBLE);
+        binding.ivSpeech.setVisibility(View.VISIBLE);
+    }
+
     private void startAudio(){
-        Intent speechIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+
+        if(isSpeechStarting) {
+            Utility.showSafeToast(this,getString(R.string.already_running));
+            return;
+        }
+        isSpeechStarting = true;
+
+        stopSpeechInput = false;
+        binding.ivSpeech.setVisibility(View.INVISIBLE);
+        binding.pbSpeech.setVisibility(View.VISIBLE);
         speechRecognizer.startListening(speechIntent);
     }
 
     private void initializeSpeechPart(){
+
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            Utility.showSafeToast(this,"Please allow microphone permission");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, 101);
+            return;
         }
+
+        speechIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         speechRecognizer.setRecognitionListener(new RecognitionListener() {
             @Override
             public void onReadyForSpeech(Bundle params) {
-
+                isSpeechStarting = false;
+                binding.pbSpeech.setVisibility(View.INVISIBLE);
+                binding.llSpeechRunning.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -512,24 +645,22 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onEndOfSpeech() {
-
+                if(!stopSpeechInput)
+                    speechRecognizer.startListening(speechIntent);
             }
 
             @Override
             public void onError(int error) {
-
+                if(!stopSpeechInput)
+                    speechRecognizer.startListening(speechIntent);
             }
 
             @Override
             public void onResults(Bundle results) {
+                if(stopSpeechInput) return;
+
                 ArrayList<String> data = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-                System.out.println("speech data "+data);
-                String word = data.get(0); // get first match
-                if ("move left".equalsIgnoreCase(word)) {
-                    // Execute your 'move left' logic
-                } else if ("move right".equalsIgnoreCase(word)) {
-                    // Execute your 'move right' logic
-                }
+                processVoiceCommand(data);
             }
 
             @Override
@@ -543,7 +674,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 101) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                initializeSpeechPart();
+            } else {
+                Utility.showSafeToast(this,"Permission denied. Can't use audio command");
+            }
+        }
     }
 
     @Override

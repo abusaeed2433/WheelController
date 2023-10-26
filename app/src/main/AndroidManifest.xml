@@ -32,8 +32,7 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:exported="false"
-            android:theme="@style/fullScreenActivity"></activity>
+            android:exported="false"/>
 
         <meta-data
             android:name="preloaded_fonts"

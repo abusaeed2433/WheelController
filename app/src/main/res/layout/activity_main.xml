@@ -193,15 +193,6 @@
 
             </RelativeLayout>
 
-            <ImageView
-                android:id="@+id/ivSpeech"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/baseline_mic_24"
-                app:layout_constraintBottom_toBottomOf="@+id/rlMessage"
-                app:layout_constraintEnd_toEndOf="@+id/rlMessage"
-                app:layout_constraintTop_toTopOf="@+id/rlMessage" />
-
             <RelativeLayout
                 android:id="@+id/rlMessage"
                 android:layout_width="match_parent"
@@ -213,11 +204,13 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/relativeLayout">
 
+
                 <TextView
                     android:id="@+id/tvMessage"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
+                    android:layout_toStartOf="@id/clRightSpeech"
+                    android:gravity="center"
                     android:padding="8dp"
                     android:shadowColor="#A38C8C"
                     android:shadowDx="16"
@@ -227,6 +220,69 @@
                     android:textColor="@color/black"
                     android:textSize="20sp"
                     android:typeface="serif" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/clRightSpeech"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true" >
+
+                    <ImageView
+                        android:id="@+id/ivSpeech"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:contentDescription="@string/mic"
+                        android:src="@drawable/baseline_mic_24"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.example.wheelcontroller.classes.MyProgressBar
+                        android:visibility="invisible"
+                        android:id="@+id/pbSpeech"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        app:pathWidth="2dp"
+                        app:duration="250"
+                        app:loop="true"
+                        app:auto_run="true"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <LinearLayout
+                        android:visibility="invisible"
+                        android:id="@+id/llSpeechRunning"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <com.github.ybq.android.spinkit.SpinKitView
+                            android:id="@+id/spin_kit"
+                            style="@style/SpinKitView.Small.Wave"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:padding="0dp"
+                            app:SpinKit_Color="@color/black" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="-4dp"
+                            android:text="@string/listening"
+                            android:textColor="@color/black"
+                            android:textSize="12sp"/>
+
+                    </LinearLayout>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
             </RelativeLayout>
 

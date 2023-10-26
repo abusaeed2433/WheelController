@@ -37,10 +37,14 @@ public class MyProgressBar extends View {
 
     public MyProgressBar(Context context) {
         super(context);
+        if(isInEditMode()) return;
     }
 
     public MyProgressBar(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+
+        if(isInEditMode()) return;
+
         TypedArray a = context.getTheme().obtainStyledAttributes(
                 attrs,
                 R.styleable.AutoPainter,
