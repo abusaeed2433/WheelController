@@ -8,7 +8,9 @@ import static com.example.wheelcontroller.enums.Command.STOP;
 
 import android.Manifest;
 import android.animation.ObjectAnimator;
+import android.app.Activity;
 import android.app.Dialog;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
@@ -29,13 +31,17 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.wheelcontroller.classes.DataSaver;
+import com.example.wheelcontroller.classes.MyBTService;
 import com.example.wheelcontroller.classes.Utility;
 import com.example.wheelcontroller.databinding.ActivityMainBinding;
 import com.example.wheelcontroller.enums.Command;
@@ -82,6 +88,9 @@ public class MainActivity extends AppCompatActivity {
     private final List<String> COMMANDS_MESSAGE  = Arrays.asList("Moving left", "Moving forward", "Moving right", "Moving backward", "Not moving" );
     private boolean stopSpeechInput = false;
 
+    private final MyBTService myBTService = new MyBTService();
+    private ActivityResultLauncher<Intent> btLauncher = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
         setClickListener();
         initializeReferences();
         initializeSpeechPart();
+        initBTLauncher();
     }
 
     private void initializeViews(){
@@ -131,6 +141,17 @@ public class MainActivity extends AppCompatActivity {
         binding.ivSpeech.setOnClickListener((View v)-> startAudio());
         binding.llSpeechRunning.setOnClickListener((View v) -> stopAudio());
 
+    }
+
+    private void initBTLauncher() {
+        btLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Toast.makeText(this, "Ready to connect", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
     }
 
     @SuppressWarnings("deprecation")
@@ -200,6 +221,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         showOrHideProgress(true);
+        sendInBluetooth(toExecute);
         saveCommand(toExecute, error -> {
             showOrHideProgress(false);
             if(error == null) {
@@ -210,6 +232,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void sendInBluetooth(Command toExecute){
+        if(myBTService.isBTEnabled()) {
+            myBTService.sendMessage(toExecute.getCommandInText());
+        }
     }
 
     private synchronized void saveCommand(Command command, CommandListener listener){
@@ -332,7 +360,14 @@ public class MainActivity extends AppCompatActivity {
         }
         else{
             if(isAllPermissionGranted()){
-                switchPowerMode();
+                if(myBTService.isBTEnabled()) {
+                    switchPowerMode();
+                }
+                else {
+                    Toast.makeText(this, "Bluetooth not enabled", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                    btLauncher.launch(intent);
+                }
             }
         }
     }
@@ -564,7 +599,7 @@ public class MainActivity extends AppCompatActivity {
                                     double lastActive = Double.parseDouble( String.valueOf(snapshot.getValue()) );
                                     double curTimeStamp = Instant.now().toEpochMilli() / 1000f;
 
-                                    if (curTimeStamp - lastActive <= 5) { // 5s
+                                    if (curTimeStamp - lastActive <= 5000) { // 5s
                                         listener.onProcessDone(null, name[0]);
                                         binding.tvID.setText(name[0]);
                                     }
