@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -99,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setClickListener() {
-        binding.ivPower.setOnClickListener((View view) -> switchPowerMode());
+        binding.ivPower.setOnClickListener((View view) -> requestPowerSwitch());
         binding.buttonShowConnection.setOnClickListener((View v) -> hideConnectionView(false));
 
         binding.llLeft.setOnClickListener((View view) -> startExecution(LEFT));
@@ -325,6 +326,59 @@ public class MainActivity extends AppCompatActivity {
         binding.tvMessage.setText(text);
     }
 
+    private void requestPowerSwitch(){
+        if (isConnected) { // will disconnect
+            switchPowerMode();
+        }
+        else{
+            if(isAllPermissionGranted()){
+                switchPowerMode();
+            }
+        }
+    }
+
+    private boolean isAllPermissionGranted(){
+        if (
+                ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                        ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                        ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED &&
+                        ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED
+        )
+        {
+            return true;
+        }
+
+        if(
+                ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                        ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED )
+        {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{
+                            android.Manifest.permission.ACCESS_FINE_LOCATION,
+                            android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                    },
+                    101);
+            return false;
+        }
+
+
+        if (
+                ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED ||
+                        ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED
+        ) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN}, 101);
+            }
+            else {
+                return true;
+            }
+        }
+        return false;
+
+    }
+
     private void switchPowerMode() {
         if(isProcessing) return;
 
@@ -372,6 +426,7 @@ public class MainActivity extends AppCompatActivity {
                         DataSaver.getInstance(this).saveIdPass(id,pass,name);
                     }
                     else{
+                        binding.myProgress.resetProgress();
                         Utility.showSafeToast(this,error);
                     }
                     isConnected = (error == null);
@@ -490,15 +545,52 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 String originalPass = null;
-                String name = null;
+                final String[] name = {null};
                 if(snapshot.exists()){
                     originalPass = String.valueOf(snapshot.child("password").getValue());
-                    name = String.valueOf(snapshot.child("name").getValue());
+                    name[0] = String.valueOf(snapshot.child("name").getValue());
                 }
 
                 if(pass.equals(originalPass)){
-                    listener.onProcessDone(null,name);
-                    binding.tvID.setText(name);
+
+                    DatabaseReference activeRef = FirebaseDatabase.getInstance().getReference()
+                                    .child("chats").child(id).child("rock/last_active");
+
+                    activeRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if(snapshot.exists()) {
+                                try {
+                                    double lastActive = Double.parseDouble( String.valueOf(snapshot.getValue()) );
+                                    double curTimeStamp = Instant.now().toEpochMilli() / 1000f;
+
+                                    if (curTimeStamp - lastActive <= 5) { // 5s
+                                        listener.onProcessDone(null, name[0]);
+                                        binding.tvID.setText(name[0]);
+                                    }
+                                    else {
+                                        listener.onProcessDone("Controller is not ready in wheelchair", null);
+                                        DataSaver.getInstance(MainActivity.this).clearIdPass();
+                                    }
+                                }
+                                catch (Exception e){
+                                    listener.onProcessDone("Something went wrong", null);
+                                    DataSaver.getInstance(MainActivity.this).clearIdPass();
+                                }
+                            }
+                            else{
+                                listener.onProcessDone("Controller is not ready in wheelchair", null);
+                                DataSaver.getInstance(MainActivity.this).clearIdPass();
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            listener.onProcessDone("Something went wrong", null);
+                            DataSaver.getInstance(MainActivity.this).clearIdPass();
+                        }
+                    });
+
                 }
                 else{
                     listener.onProcessDone("Wrong password. Re-enter again",null);
@@ -509,6 +601,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 listener.onProcessDone(error.getMessage(),null);
+                DataSaver.getInstance(MainActivity.this).clearIdPass();
             }
         });
 
