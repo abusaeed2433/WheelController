@@ -11,6 +11,8 @@ import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
@@ -40,8 +42,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.wheelcontroller.classes.BluetoothConnector;
 import com.example.wheelcontroller.classes.DataSaver;
-import com.example.wheelcontroller.classes.MyBTService;
 import com.example.wheelcontroller.classes.Utility;
 import com.example.wheelcontroller.databinding.ActivityMainBinding;
 import com.example.wheelcontroller.enums.Command;
@@ -61,6 +63,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -69,6 +72,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding = null;
@@ -88,7 +93,8 @@ public class MainActivity extends AppCompatActivity {
     private final List<String> COMMANDS_MESSAGE  = Arrays.asList("Moving left", "Moving forward", "Moving right", "Moving backward", "Not moving" );
     private boolean stopSpeechInput = false;
 
-    private final MyBTService myBTService = new MyBTService();
+    //private MyBTService myBTService = null;
+    private BluetoothConnector bluetoothConnector = null;
     private ActivityResultLauncher<Intent> btLauncher = null;
 
     @Override
@@ -235,9 +241,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendInBluetooth(Command toExecute){
-        if(myBTService.isBTEnabled()) {
-            myBTService.sendMessage(toExecute.getCommandInText());
-        }
+        bluetoothConnector.sendData(toExecute.getId()+"");
     }
 
     private synchronized void saveCommand(Command command, CommandListener listener){
@@ -360,8 +364,24 @@ public class MainActivity extends AppCompatActivity {
         }
         else{
             if(isAllPermissionGranted()){
-                if(myBTService.isBTEnabled()) {
-                    switchPowerMode();
+
+                BluetoothManager bluetoothManager = getSystemService(BluetoothManager.class);
+                BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
+
+                if(bluetoothAdapter.isEnabled()) {
+                    BluetoothDevice device = bluetoothAdapter.getRemoteDevice("08:FB:EA:2B:96:E9");
+                    bluetoothConnector = new BluetoothConnector(device,true,bluetoothAdapter,null);
+                    ExecutorService service = Executors.newSingleThreadExecutor();
+                    service.execute(() -> {
+                        try {
+                            bluetoothConnector.connect();
+                            new Handler(Looper.getMainLooper()).post(this::switchPowerMode);
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
+
                 }
                 else {
                     Toast.makeText(this, "Bluetooth not enabled", Toast.LENGTH_SHORT).show();
