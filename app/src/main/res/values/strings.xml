@@ -5,6 +5,7 @@
     <string name="continue_">Continue</string>
     <string name="enter_wheelchair_password">Enter wheelchair password</string>
     <string name="cancel">Cancel</string>
+    <string name="cant_be_empty">Can\'t be empty</string>
     <string name="connect">Connect</string>
     <string name="my_user_id">my user_id</string>
     <string name="show">show</string>
@@ -29,7 +30,13 @@
     <string name="listening">listening…</string>
     <string name="please_wait">Please wait…</string>
     <string name="already_running">Already running</string>
-
+    <string name="wheelchair_id">Wheelchair ID</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="don_t_know_how_to_use">Don\'t know how to use?</string>
+    <string name="see_instructions">See instructions</string>
+    <string name="don_t_understand">Don\'t understand?</string>
+    <string name="processing_your_request">Processing your request...</string>
 
 
 </resources>

@@ -5,6 +5,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="very_light_white">#B3FFFFFF</color>
 
+    <color name="dim_black_dim_white">#3C3C3C</color>
+
     <color name="neu_background_main">#f5ffff</color>
     <color name="neu_top_left_main">#FFFFFF</color>
     <color name="neu_bottom_right_main">#d0d9d9</color>
@@ -14,5 +16,10 @@
     <color name="light_red">#F8AEAE</color>
 
     <color name="background_color">#161616</color>
+    <color name="green">#00ff00</color>
+    <color name="text_color_dim">#484848</color>
+
+    <color name="progress_bar_color1">#1BE4FF</color>
+    <color name="progress_bar_color2">#E600FF</color>
 
 </resources>

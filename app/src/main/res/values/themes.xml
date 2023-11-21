@@ -6,15 +6,15 @@
         <item name="fontFamily">@font/roboto_slab</item>
     </style>
 
-    <style name="Theme.WheelController" parent="Base.Theme.WheelController" />
+    <style name="Theme.WheelController" parent="Theme.Material3.Light" />
 
-    <style name="fullScreenActivity" parent="@style/Theme.AppCompat.DayNight.NoActionBar">
-<!--        <item name="android:windowBackground">@drawable/wheelchair_splash</item>-->
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowActionBar">false</item>
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:windowContentOverlay">@null</item>
+    <style name="fullScreenActivity" parent="@style/Theme.MaterialComponents.DayNight.NoActionBar">
+<!--        <item name="android:windowFullscreen">true</item>-->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+
         <item name="fontFamily">@font/roboto_slab</item>
+        <item name="android:windowTranslucentStatus">true</item>
     </style>
 
     <style name="dialogAnimation">

@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
@@ -23,8 +23,12 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".LoginActivity"
+            android:name=".HomeActivity"
             android:exported="false" />
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false"
+            android:theme="@style/fullScreenActivity" />
         <activity
             android:name=".FrontActivity"
             android:exported="true"
@@ -39,7 +43,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="false"
-            android:theme="@style/fullScreenActivity"/>
+            android:theme="@style/fullScreenActivity" />
 
         <meta-data
             android:name="preloaded_fonts"

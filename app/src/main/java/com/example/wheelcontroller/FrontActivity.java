@@ -19,7 +19,8 @@ public class FrontActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         binding.myProgress.setProgressListener(() -> {
-            startActivity(new Intent(FrontActivity.this,MainActivity.class));
+            //startActivity(new Intent(FrontActivity.this,MainActivity.class));
+            startActivity(new Intent(FrontActivity.this,LoginActivity.class));
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
 

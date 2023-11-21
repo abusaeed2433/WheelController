@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <style name="editTextOutlineStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="hintTextColor">@color/dim_black_dim_white</item>
+        <item name="boxBackgroundColor">@android:color/transparent</item>
+    </style>
+
+</resources>
