@@ -6,6 +6,14 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity" >
 
+    <View
+        android:id="@+id/view2"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        app:layout_constraintBaseline_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/rlConnection"
         android:layout_width="match_parent"
@@ -86,14 +94,14 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:visibility="invisible"
         android:id="@+id/clRoot"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/view2">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/constraintLayout"
@@ -115,9 +123,9 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
+                android:gravity="center"
                 android:text="@string/my_user_id"
                 android:textColor="@color/black"
-                android:gravity="center"
                 android:textSize="20sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/buttonShowConnection"
@@ -168,28 +176,38 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/view">
 
-                <com.example.wheelcontroller.classes.MyProgressBar
-                    android:id="@+id/myProgressVideo"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_centerInParent="true"
-                    app:auto_run="true"
-                    app:duration="500"
-                    app:loop="true"
-                    app:pathWidth="2dp" />
+<!--                <com.example.wheelcontroller.classes.MyProgressBar-->
+<!--                    android:id="@+id/myProgressVideo"-->
+<!--                    android:layout_width="40dp"-->
+<!--                    android:layout_height="40dp"-->
+<!--                    android:layout_centerInParent="true"-->
+<!--                    app:auto_run="true"-->
+<!--                    app:duration="500"-->
+<!--                    app:loop="true"-->
+<!--                    app:pathWidth="2dp" />-->
 
-                <com.google.android.exoplayer2.ui.PlayerView
-                    android:id="@+id/exoPlayer"
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvLogs"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:soundEffectsEnabled="false"
-                    android:visibility="invisible"
-                    app:controller_layout_id="@layout/custom_controller"
-                    app:hide_on_touch="true"
-                    app:player_layout_id="@layout/exo_styled_player_view"
-                    app:resize_mode="fit"
-                    app:show_timeout="4000"
-                    app:use_controller="true" />
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    android:orientation="vertical"
+                    app:reverseLayout="false"
+                    tools:listitem="@layout/single_log_layout"
+                    tools:itemCount="5"/>
+
+<!--                <com.google.android.exoplayer2.ui.PlayerView-->
+<!--                    android:id="@+id/exoPlayer"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:soundEffectsEnabled="false"-->
+<!--                    android:visibility="invisible"-->
+<!--                    app:controller_layout_id="@layout/custom_controller"-->
+<!--                    app:hide_on_touch="true"-->
+<!--                    app:player_layout_id="@layout/exo_styled_player_view"-->
+<!--                    app:resize_mode="fit"-->
+<!--                    app:show_timeout="4000"-->
+<!--                    app:use_controller="true" />-->
 
             </RelativeLayout>
 
@@ -225,7 +243,7 @@
                     android:id="@+id/clRightSpeech"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true" >
+                    android:layout_alignParentEnd="true">
 
                     <ImageView
                         android:id="@+id/ivSpeech"
@@ -239,25 +257,25 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <com.example.wheelcontroller.classes.MyProgressBar
-                        android:visibility="invisible"
                         android:id="@+id/pbSpeech"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        app:pathWidth="2dp"
-                        app:duration="250"
-                        app:loop="true"
+                        android:visibility="invisible"
                         app:auto_run="true"
+                        app:duration="250"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:loop="true"
+                        app:pathWidth="2dp" />
 
                     <LinearLayout
-                        android:visibility="invisible"
                         android:id="@+id/llSpeechRunning"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
+                        android:visibility="invisible"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -278,7 +296,7 @@
                             android:layout_marginTop="-4dp"
                             android:text="@string/listening"
                             android:textColor="@color/black"
-                            android:textSize="12sp"/>
+                            android:textSize="12sp" />
 
                     </LinearLayout>
 

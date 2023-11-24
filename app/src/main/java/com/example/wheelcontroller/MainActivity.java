@@ -38,12 +38,15 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.wheelcontroller.classes.BluetoothConnector;
 import com.example.wheelcontroller.classes.DataSaver;
+import com.example.wheelcontroller.classes.EachLog;
+import com.example.wheelcontroller.classes.LogAdapter;
 import com.example.wheelcontroller.classes.Utility;
 import com.example.wheelcontroller.databinding.ActivityMainBinding;
 import com.example.wheelcontroller.enums.Command;
@@ -57,6 +60,7 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -96,6 +100,9 @@ public class MainActivity extends AppCompatActivity {
     //private MyBTService myBTService = null;
     private BluetoothConnector bluetoothConnector = null;
     private ActivityResultLauncher<Intent> btLauncher = null;
+    private boolean isBTConnected = false;
+    private final List<EachLog> allLogs = new ArrayList<>();
+    private LogAdapter logAdapter = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,9 +113,57 @@ public class MainActivity extends AppCompatActivity {
         initializeVideoListener();
         initializeViews();
         setClickListener();
+
         initializeReferences();
         initializeSpeechPart();
         initBTLauncher();
+
+        initLogAdapter();
+        readLogsIfPossible();
+    }
+
+    private void initLogAdapter(){
+        logAdapter = new LogAdapter(this,allLogs);
+        binding.rvLogs.setAdapter(logAdapter);
+    }
+
+    private void readLogsIfPossible(){
+        String id = DataSaver.getInstance(this).getId();
+
+        DatabaseReference logRef = FirebaseDatabase.getInstance().getReference()
+                .child("chats").child(id).child("rock/logs");
+        logRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+                String type = String.valueOf(snapshot.child("type").getValue());
+                String message = String.valueOf(snapshot.child("message").getValue());
+                String timestamp = String.valueOf(snapshot.child("timestamp").getValue());
+
+                EachLog log = new EachLog(type,message,timestamp);
+                updateLogInAdapter(log);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     private void initializeViews(){
@@ -126,19 +181,19 @@ public class MainActivity extends AppCompatActivity {
         binding.llStartStop.setOnClickListener((View view) -> startExecution(STOP));
 
         // video player
-        ivPlayPause.setOnClickListener((View v)->{
-            if(simpleExoPlayer.isPlaying()){
-                simpleExoPlayer.setPlayWhenReady(false);
-                ivPlayPause.setImageResource(R.drawable.ic_video_play_circle_filled_24);
-                binding.tvStartStop.setText(getString(R.string.start));
-            }
-            else{
-                simpleExoPlayer.setPlayWhenReady(true);
-                ivPlayPause.setImageResource(R.drawable.ic_video_pause_24);
-                binding.tvStartStop.setText(getString(R.string.stop));
-            }
-
-        });
+//        ivPlayPause.setOnClickListener((View v)->{
+//            if(simpleExoPlayer.isPlaying()){
+//                simpleExoPlayer.setPlayWhenReady(false);
+//                ivPlayPause.setImageResource(R.drawable.ic_video_play_circle_filled_24);
+//                binding.tvStartStop.setText(getString(R.string.start));
+//            }
+//            else{
+//                simpleExoPlayer.setPlayWhenReady(true);
+//                ivPlayPause.setImageResource(R.drawable.ic_video_pause_24);
+//                binding.tvStartStop.setText(getString(R.string.stop));
+//            }
+//
+//        });
 
         //
         binding.rlGesture.setOnClickListener(v -> hideConnectionView(true));
@@ -167,8 +222,8 @@ public class MainActivity extends AppCompatActivity {
             public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
                 Player.Listener.super.onPlayerStateChanged(playWhenReady, playbackState);
                 if(playbackState == simpleExoPlayer.STATE_READY){
-                    binding.myProgressVideo.setVisibility(View.GONE);
-                    binding.exoPlayer.setVisibility(View.VISIBLE);
+                    //binding.myProgressVideo.setVisibility(View.GONE);
+                    //binding.exoPlayer.setVisibility(View.VISIBLE);
                 }
             }
         };
@@ -182,13 +237,13 @@ public class MainActivity extends AppCompatActivity {
     @SuppressWarnings("deprecation")
     private void startPlayer() {
 
-        binding.myProgressVideo.setVisibility(View.VISIBLE);
-        binding.exoPlayer.setVisibility(View.INVISIBLE);
+        //binding.myProgressVideo.setVisibility(View.VISIBLE);
+        //binding.exoPlayer.setVisibility(View.INVISIBLE);
 
         if(simpleExoPlayer == null) {
             simpleExoPlayer = new SimpleExoPlayer.Builder(this).build();
-            binding.exoPlayer.setKeepScreenOn(true);
-            binding.exoPlayer.setPlayer(simpleExoPlayer);
+            //binding.exoPlayer.setKeepScreenOn(true);
+            //binding.exoPlayer.setPlayer(simpleExoPlayer);
             simpleExoPlayer.addListener(videoListener);
         }
 
@@ -245,6 +300,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private synchronized void saveCommand(Command command, CommandListener listener){
+        if(isBTConnected) {
+            listener.onProcessDone(null);
+            return;
+        }
+
         String id = DataSaver.getInstance(this).getId();
 
         Map<String,Object> map = new HashMap<>();
@@ -375,13 +435,12 @@ public class MainActivity extends AppCompatActivity {
                     service.execute(() -> {
                         try {
                             bluetoothConnector.connect();
-                            new Handler(Looper.getMainLooper()).post(this::switchPowerMode);
-
+                            isBTConnected = true;
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     });
-
+                    switchPowerMode();
                 }
                 else {
                     Toast.makeText(this, "Bluetooth not enabled", Toast.LENGTH_SHORT).show();
@@ -481,8 +540,8 @@ public class MainActivity extends AppCompatActivity {
                         DataSaver.getInstance(this).saveIdPass(id,pass,name);
                     }
                     else{
-                        binding.myProgress.resetProgress();
                         Utility.showSafeToast(this,error);
+                        binding.myProgress.resetProgress();
                     }
                     isConnected = (error == null);
                 });
@@ -521,6 +580,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void updateLogInAdapter(EachLog log){
+        allLogs.add(log);
+        logAdapter.notifyItemInserted(allLogs.size()-1);
     }
 
     private void takeInputAndContinue(){
@@ -625,24 +689,20 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                     else {
                                         listener.onProcessDone("Controller is not ready in wheelchair", null);
-                                        DataSaver.getInstance(MainActivity.this).clearIdPass();
                                     }
                                 }
                                 catch (Exception e){
                                     listener.onProcessDone("Something went wrong", null);
-                                    DataSaver.getInstance(MainActivity.this).clearIdPass();
                                 }
                             }
                             else{
                                 listener.onProcessDone("Controller is not ready in wheelchair", null);
-                                DataSaver.getInstance(MainActivity.this).clearIdPass();
                             }
                         }
 
                         @Override
                         public void onCancelled(@NonNull DatabaseError error) {
                             listener.onProcessDone("Something went wrong", null);
-                            DataSaver.getInstance(MainActivity.this).clearIdPass();
                         }
                     });
 
@@ -650,6 +710,8 @@ public class MainActivity extends AppCompatActivity {
                 else{
                     listener.onProcessDone("Wrong password. Re-enter again",null);
                     DataSaver.getInstance(MainActivity.this).clearIdPass();
+                    startActivity(new Intent(MainActivity.this,LoginActivity.class));
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                 }
             }
 

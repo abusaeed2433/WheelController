@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.wheelcontroller.classes.DataSaver;
 import com.example.wheelcontroller.databinding.ActivityFrontBinding;
 
 public class FrontActivity extends AppCompatActivity {
@@ -19,11 +20,15 @@ public class FrontActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         binding.myProgress.setProgressListener(() -> {
-            //startActivity(new Intent(FrontActivity.this,MainActivity.class));
-            startActivity(new Intent(FrontActivity.this,LoginActivity.class));
+
+            if(DataSaver.getInstance(this).isIDPassNotSet()) {
+                startActivity(new Intent(FrontActivity.this, LoginActivity.class));
+            }
+            else{
+                startActivity(new Intent(FrontActivity.this,MainActivity.class));
+            }
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
 
     }
-
 }

@@ -108,7 +108,7 @@ public class LoginActivity extends AppCompatActivity {
                 safeDismiss();
                 if (pass.equals(originalPass)) {
                     DataSaver.getInstance(LoginActivity.this).saveIdPass(id,pass,name[0]);
-                    startActivity(new Intent(LoginActivity.this, HomeActivity.class));
+                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                 }
                 else{
