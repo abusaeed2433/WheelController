@@ -93,7 +93,8 @@ public class MainActivity extends AppCompatActivity {
     private SpeechRecognizer speechRecognizer;
     private Intent speechIntent;
     private boolean isSpeechStarting = false;
-    private final List<String> VOICE_COMMANDS = Arrays.asList("go left","go right","go forward","go backward","terminate");
+    //private final List<String> VOICE_COMMANDS = Arrays.asList("go left","go right","go forward","go backward","terminate");
+    private final List<String> VOICE_COMMANDS = Arrays.asList("বামে যাও","ডানে যাও","সামনে যাও","পিছনে যাও","থামো");
     private final List<String> COMMANDS_MESSAGE  = Arrays.asList("Moving left", "Moving forward", "Moving right", "Moving backward", "Not moving" );
     private boolean stopSpeechInput = false;
 
@@ -785,6 +786,12 @@ public class MainActivity extends AppCompatActivity {
         String strCommand = voices.get(0);
         Command realCommand = null;
 
+        //dummy for log
+        EachLog log = new EachLog("L","Voice command taken through app "+strCommand,System.currentTimeMillis()+"");
+        updateLogInAdapter(log);
+        //dummy for log above
+
+
         Pair<Integer,Integer> minPoint = new Pair<>(Integer.MAX_VALUE,-1); // minDif, index
 
         for(int i=0; i < VOICE_COMMANDS.size(); i++) {
@@ -861,6 +868,8 @@ public class MainActivity extends AppCompatActivity {
 
         speechIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "bn_IN");
+
         speechRecognizer.setRecognitionListener(new RecognitionListener() {
             @Override
             public void onReadyForSpeech(Bundle params) {
