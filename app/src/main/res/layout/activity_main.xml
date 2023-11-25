@@ -176,15 +176,15 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/view">
 
-<!--                <com.example.wheelcontroller.classes.MyProgressBar-->
-<!--                    android:id="@+id/myProgressVideo"-->
-<!--                    android:layout_width="40dp"-->
-<!--                    android:layout_height="40dp"-->
-<!--                    android:layout_centerInParent="true"-->
-<!--                    app:auto_run="true"-->
-<!--                    app:duration="500"-->
-<!--                    app:loop="true"-->
-<!--                    app:pathWidth="2dp" />-->
+                <com.example.wheelcontroller.classes.MyProgressBar
+                    android:id="@+id/myProgressLog"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_centerHorizontal="true"
+                    app:auto_run="true"
+                    app:duration="500"
+                    app:loop="true"
+                    app:pathWidth="2dp" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvLogs"

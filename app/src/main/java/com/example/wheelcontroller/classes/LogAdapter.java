@@ -1,6 +1,7 @@
 package com.example.wheelcontroller.classes;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,6 +40,10 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.ViewHolder> {
         curItem = allLogs.get(position);
         holder.tvLogType.setText(curItem.getType());
         holder.tvLogMessage.setText(curItem.getMessage());
+
+        holder.tvLogType.setTextColor( curItem.getTypeColor() );
+        holder.tvLogMessage.setTextColor( curItem.getMessageColor() );
+
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.example.wheelcontroller.classes;
 
+import android.graphics.Color;
+
 public class EachLog {
 
     private final String type;
@@ -26,6 +28,16 @@ public class EachLog {
 
     public boolean allEquals(EachLog log){
         return type.equals(log.type) && message.equals(log.message) && timestamp.equals(log.timestamp);
+    }
+
+    public int getTypeColor(){
+        if(type.equals("E")) return Color.RED;
+        return Color.BLACK;
+    }
+
+    public int getMessageColor(){
+        if(type.equals("E")) return Color.RED;
+        return Color.WHITE;
     }
 
 }

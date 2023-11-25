@@ -584,7 +584,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateLogInAdapter(EachLog log){
         allLogs.add(log);
+        binding.myProgressLog.setVisibility(View.GONE);
+
         logAdapter.notifyItemInserted(allLogs.size()-1);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+           if(binding == null) return;
+           binding.rvLogs.smoothScrollToPosition(allLogs.size()-1);
+        },120);
+
     }
 
     private void takeInputAndContinue(){
