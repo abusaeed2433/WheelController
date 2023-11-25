@@ -37,6 +37,9 @@ public class EachLog {
 
     public int getMessageColor(){
         if(type.equals("E")) return Color.RED;
+
+        if(type.equals("L")) return Color.YELLOW;
+
         return Color.WHITE;
     }
 

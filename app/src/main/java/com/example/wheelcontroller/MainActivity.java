@@ -70,9 +70,13 @@ import com.google.firebase.database.ValueEventListener;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -139,7 +143,13 @@ public class MainActivity extends AppCompatActivity {
 
                 String type = String.valueOf(snapshot.child("type").getValue());
                 String message = String.valueOf(snapshot.child("message").getValue());
-                String timestamp = String.valueOf(snapshot.child("timestamp").getValue());
+                String ts = String.valueOf(snapshot.child("timestamp").getValue());
+
+                String timestamp = "-- -- ---";
+                try{
+                    long realTs = (long)(Double.parseDouble(ts) * 1000);
+                    timestamp = getFormattedTS(realTs);
+                }catch (Exception ignored){}
 
                 EachLog log = new EachLog(type,message,timestamp);
                 updateLogInAdapter(log);
@@ -775,6 +785,15 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
+    private String getFormattedTS(long ts){
+
+        LocalDateTime ldt = LocalDateTime.ofInstant(Instant.ofEpochMilli(ts), ZoneId.systemDefault());
+
+        String pattern = "EEE MMM dd'\n'hh:mm:ssa";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+        return formatter.format(ldt).toUpperCase();
+    }
+
 
     private void processVoiceCommand(List<String> voices){
 
@@ -787,7 +806,9 @@ public class MainActivity extends AppCompatActivity {
         Command realCommand = null;
 
         //dummy for log
-        EachLog log = new EachLog("L","Voice command taken through app "+strCommand,System.currentTimeMillis()+"");
+
+        String timestamp =  getFormattedTS(System.currentTimeMillis());
+        EachLog log = new EachLog("L","Voice command taken through app "+strCommand,timestamp);
         updateLogInAdapter(log);
         //dummy for log above
 

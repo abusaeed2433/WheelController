@@ -9,20 +9,35 @@
     android:layout_marginTop="2dp"
     android:layout_marginBottom="2dp"
     android:padding="4dp"
-    android:background="@drawable/stroke_only" >
+    android:background="@drawable/each_log_back" >
+
+    <TextView
+        android:id="@+id/tvLogTimestamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/log_type_back"
+        android:gravity="center"
+        android:fontFamily="serif"
+        android:textColor="@color/white"
+        android:textSize="11sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="2022-12-29\n02:02:23AM" />
 
     <TextView
         android:id="@+id/tvLogType"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:minWidth="20dp"
+        android:layout_marginStart="4dp"
         android:background="@drawable/log_type_back"
         android:backgroundTint="@color/green"
         android:gravity="center"
-        android:textSize="14sp"
+        android:textSize="12sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintDimensionRatio="1:1"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tvLogTimestamp"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="I" />
 
@@ -34,11 +49,12 @@
         android:background="@drawable/log_type_back"
         android:textColor="@color/white"
         android:gravity="start"
-        android:textSize="14sp"
+        android:fontFamily="serif"
+        android:textSize="11sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/tvLogType"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="command for going LEFT received via bluetooth" />
+        tools:text="Command for going LEFT received via bluetooth" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
