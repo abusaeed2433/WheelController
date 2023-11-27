@@ -48,6 +48,7 @@ import com.example.wheelcontroller.classes.DataSaver;
 import com.example.wheelcontroller.classes.EachLog;
 import com.example.wheelcontroller.classes.LogAdapter;
 import com.example.wheelcontroller.classes.Utility;
+import com.example.wheelcontroller.classes.WebSocketClient;
 import com.example.wheelcontroller.databinding.ActivityMainBinding;
 import com.example.wheelcontroller.enums.Command;
 import com.example.wheelcontroller.listener.CommandListener;
@@ -71,12 +72,10 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -308,6 +307,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void sendInBluetooth(Command toExecute){
         bluetoothConnector.sendData(toExecute.getId()+"");
+        sendViaSocket(toExecute.getId()+"");
     }
 
     private synchronized void saveCommand(Command command, CommandListener listener){
@@ -975,6 +975,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         simpleExoPlayer.release();
+    }
+
+    private WebSocketClient mWebSocketClient = null;
+    private void sendViaSocket(String message) {
+        if(mWebSocketClient == null){
+            mWebSocketClient = new WebSocketClient();
+        }
+        mWebSocketClient.sendMessage(message);
     }
 
 }

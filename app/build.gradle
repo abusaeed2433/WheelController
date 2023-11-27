@@ -67,4 +67,7 @@ dependencies {
     //spinkit view
     implementation 'com.github.ybq:Android-SpinKit:1.4.0'
 
+    // for web socket
+    implementation 'com.squareup.okhttp3:okhttp:4.11.0'
+
 }
