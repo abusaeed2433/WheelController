@@ -54,6 +54,7 @@ import com.example.wheelcontroller.enums.Command;
 import com.example.wheelcontroller.listener.CommandListener;
 import com.example.wheelcontroller.listener.DatabaseListener;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
@@ -81,6 +82,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import okhttp3.OkHttpClient;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding = null;
@@ -191,19 +194,19 @@ public class MainActivity extends AppCompatActivity {
         binding.llStartStop.setOnClickListener((View view) -> startExecution(STOP));
 
         // video player
-//        ivPlayPause.setOnClickListener((View v)->{
-//            if(simpleExoPlayer.isPlaying()){
-//                simpleExoPlayer.setPlayWhenReady(false);
-//                ivPlayPause.setImageResource(R.drawable.ic_video_play_circle_filled_24);
-//                binding.tvStartStop.setText(getString(R.string.start));
-//            }
-//            else{
-//                simpleExoPlayer.setPlayWhenReady(true);
-//                ivPlayPause.setImageResource(R.drawable.ic_video_pause_24);
-//                binding.tvStartStop.setText(getString(R.string.stop));
-//            }
-//
-//        });
+        ivPlayPause.setOnClickListener((View v)->{
+            if(simpleExoPlayer.isPlaying()){
+                simpleExoPlayer.setPlayWhenReady(false);
+                ivPlayPause.setImageResource(R.drawable.ic_video_play_circle_filled_24);
+                binding.tvStartStop.setText(getString(R.string.start));
+            }
+            else{
+                simpleExoPlayer.setPlayWhenReady(true);
+                ivPlayPause.setImageResource(R.drawable.ic_video_pause_24);
+                binding.tvStartStop.setText(getString(R.string.stop));
+            }
+
+        });
 
         //
         binding.rlGesture.setOnClickListener(v -> hideConnectionView(true));
@@ -232,9 +235,24 @@ public class MainActivity extends AppCompatActivity {
             public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
                 Player.Listener.super.onPlayerStateChanged(playWhenReady, playbackState);
                 if(playbackState == simpleExoPlayer.STATE_READY){
-                    //binding.myProgressVideo.setVisibility(View.GONE);
-                    //binding.exoPlayer.setVisibility(View.VISIBLE);
+                    binding.myProgressLog.setVisibility(View.GONE);
+                    binding.exoPlayer.setVisibility(View.VISIBLE);
                 }
+            }
+
+            @Override
+            public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
+                Player.Listener.super.onPlayWhenReadyChanged(playWhenReady, reason);
+                binding.rvLogs.setVisibility(View.GONE);
+                binding.exoPlayer.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onPlayerError(@NonNull PlaybackException error) {
+                //Player.Listener.super.onPlayerError(error);
+                error.printStackTrace();
+//                binding.rvLogs.setVisibility(View.VISIBLE);
+//                binding.exoPlayer.setVisibility(View.GONE);
             }
         };
     }
@@ -247,17 +265,19 @@ public class MainActivity extends AppCompatActivity {
     @SuppressWarnings("deprecation")
     private void startPlayer() {
 
-        //binding.myProgressVideo.setVisibility(View.VISIBLE);
+        //binding.myProgressLog.setVisibility(View.VISIBLE);
         //binding.exoPlayer.setVisibility(View.INVISIBLE);
 
         if(simpleExoPlayer == null) {
             simpleExoPlayer = new SimpleExoPlayer.Builder(this).build();
-            //binding.exoPlayer.setKeepScreenOn(true);
-            //binding.exoPlayer.setPlayer(simpleExoPlayer);
+            binding.exoPlayer.setKeepScreenOn(true);
+            binding.exoPlayer.setPlayer(simpleExoPlayer);
             simpleExoPlayer.addListener(videoListener);
         }
 
-        String url = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+        //String url = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+        //String url = "http://192.168.29.150:8081/";
+        String url = "https://open-lately-muskox.ngrok-free.app";
 
         MediaSource mediaSource = getMediaSource( Uri.parse(url) );
         simpleExoPlayer.prepare(mediaSource);
@@ -266,6 +286,7 @@ public class MainActivity extends AppCompatActivity {
 
     @SuppressWarnings("deprecation")
     private MediaSource getMediaSource(Uri uri){
+
         DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(this,
                 Util.getUserAgent(this,"exoplayer"));
 
