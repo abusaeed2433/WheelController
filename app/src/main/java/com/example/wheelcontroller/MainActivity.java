@@ -235,16 +235,18 @@ public class MainActivity extends AppCompatActivity {
             public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
                 Player.Listener.super.onPlayerStateChanged(playWhenReady, playbackState);
                 if(playbackState == simpleExoPlayer.STATE_READY){
-                    binding.myProgressLog.setVisibility(View.GONE);
-                    binding.exoPlayer.setVisibility(View.VISIBLE);
+                    //todo
+                    //binding.myProgressLog.setVisibility(View.GONE);
+                    //binding.exoPlayer.setVisibility(View.VISIBLE);
                 }
             }
 
             @Override
             public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
                 Player.Listener.super.onPlayWhenReadyChanged(playWhenReady, reason);
-                binding.rvLogs.setVisibility(View.GONE);
-                binding.exoPlayer.setVisibility(View.VISIBLE);
+                //todo
+//                binding.rvLogs.setVisibility(View.GONE);
+//                binding.exoPlayer.setVisibility(View.VISIBLE);
             }
 
             @Override
