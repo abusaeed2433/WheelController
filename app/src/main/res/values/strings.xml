@@ -39,6 +39,7 @@
     <string name="processing_your_request">Processing your request...</string>
     <string name="last_active">Last active</string>
     <string name="last_active_some_time_ago">Last active some time ago</string>
+    <string name="refresh">Refresh</string>
 
 
 </resources>

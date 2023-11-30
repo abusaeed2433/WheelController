@@ -189,6 +189,7 @@
 
 
                 <androidx.recyclerview.widget.RecyclerView
+                    android:visibility="gone"
                     android:id="@+id/rvLogs"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -198,12 +199,27 @@
                     tools:listitem="@layout/single_log_layout"
                     tools:itemCount="5"/>
 
+                <WebView
+                    android:id="@+id/webView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+
+                <android.widget.Button
+                    android:id="@+id/buttonRefresh"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/refresh"
+                    android:elevation="2dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentBottom="true"
+                    android:textColor="@color/black"/>
+
                 <com.google.android.exoplayer2.ui.PlayerView
+                    android:visibility="gone"
                     android:id="@+id/exoPlayer"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:soundEffectsEnabled="false"
-                    android:visibility="invisible"
                     app:controller_layout_id="@layout/custom_controller"
                     app:hide_on_touch="true"
                     app:player_layout_id="@layout/exo_styled_player_view"

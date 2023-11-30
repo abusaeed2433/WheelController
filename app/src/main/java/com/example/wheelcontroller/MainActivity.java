@@ -53,14 +53,19 @@ import com.example.wheelcontroller.databinding.ActivityMainBinding;
 import com.example.wheelcontroller.enums.Command;
 import com.example.wheelcontroller.listener.CommandListener;
 import com.example.wheelcontroller.listener.DatabaseListener;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
+import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -208,13 +213,12 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
-        //
+        binding.buttonRefresh.setOnClickListener((View v)-> binding.webView.reload());
         binding.rlGesture.setOnClickListener(v -> hideConnectionView(true));
 
         // speech
         binding.ivSpeech.setOnClickListener((View v)-> startAudio());
         binding.llSpeechRunning.setOnClickListener((View v) -> stopAudio());
-
     }
 
     private void initBTLauncher() {
@@ -281,9 +285,49 @@ public class MainActivity extends AppCompatActivity {
         //String url = "http://192.168.29.150:8081/";
         String url = "https://open-lately-muskox.ngrok-free.app";
 
+        if(simpleExoPlayer != null){
+            Map<String,String> map = new HashMap<>();
+            map.put("ngrok-skip-browser-warning","2442");
+            binding.webView.loadUrl(url,map);
+            return;
+        }
+
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("iid", "aaa123 ");
+        headersMap.put("version", "1.4");
+        headersMap.put("agent", "phone");
+        headersMap.put("ngrok-skip-browser-warning", "2222");
+        DefaultHttpDataSource.Factory factory = new DefaultHttpDataSource.Factory().setDefaultRequestProperties(headersMap);
+
+        DataSource.Factory dataSourceFactory =
+                () -> {
+                    HttpDataSource dataSource = factory.createDataSource();
+                    // Set a custom authentication request header.
+                    dataSource.setRequestProperty("ngrok-skip-browser-warning", "1245");
+                    return dataSource;
+                };
+
+        ExoPlayer exoPlayer =
+                new ExoPlayer.Builder(this).setMediaSourceFactory(
+                                new DefaultMediaSourceFactory(this).setDataSourceFactory(dataSourceFactory))
+                        .build();
+
+//        MediaItem mediaItem = MediaItem.fromUri(url);
+//        MediaSource mediaSource = new ProgressiveMediaSource.Factory(dataSourceFactory)
+//                .createMediaSource(mediaItem);
+
         MediaSource mediaSource = getMediaSource( Uri.parse(url) );
-        simpleExoPlayer.prepare(mediaSource);
-        simpleExoPlayer.setPlayWhenReady(true);
+        exoPlayer.prepare(mediaSource);
+        exoPlayer.setPlayWhenReady(true);
+    }
+
+    private HttpDataSource.Factory buildHttpDataSourceFactory() {
+        Map<String, String> settings = new HashMap<>();
+        settings.put("Referer", "my_referer_value");
+        return new DefaultHttpDataSource.Factory()
+                .setUserAgent(Util.getUserAgent(this, "your agent"))
+                .setDefaultRequestProperties(settings)
+                .setAllowCrossProtocolRedirects(true);
     }
 
     @SuppressWarnings("deprecation")

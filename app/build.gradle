@@ -63,6 +63,9 @@ dependencies {
 
     //exoplayer
     implementation 'com.google.android.exoplayer:exoplayer:2.19.1'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.19.1'
+    implementation 'com.google.android.exoplayer:exoplayer-hls:2.19.1' // Add this line if you need HLS support
+
 
     //spinkit view
     implementation 'com.github.ybq:Android-SpinKit:1.4.0'
