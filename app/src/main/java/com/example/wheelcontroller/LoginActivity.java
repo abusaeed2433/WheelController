@@ -79,6 +79,11 @@ public class LoginActivity extends AppCompatActivity {
             login(id,pass);
         });
 
+        binding.tvInstruction.setOnClickListener((View v)->{
+            startActivity(new Intent(LoginActivity.this, InstructionActivity.class));
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        });
+
     }
 
     private void login(String id, String pass){

@@ -22,9 +22,12 @@
         android:theme="@style/Theme.WheelController"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+
         <activity
-            android:name=".HomeActivity"
-            android:exported="false" />
+            android:name=".InstructionActivity"
+            android:exported="false"
+            android:theme="@style/fullScreenActivity" />
+
         <activity
             android:name=".LoginActivity"
             android:exported="false"

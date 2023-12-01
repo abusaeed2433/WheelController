@@ -40,6 +40,10 @@
     <string name="last_active">Last active</string>
     <string name="last_active_some_time_ago">Last active some time ago</string>
     <string name="refresh">Refresh</string>
+    <string name="how_to_connect">How to connect</string>
+    <string name="steps_for_operating">Steps for operating</string>
+    <string name="dot">.</string>
+    <string name="bullet_point">bullet point</string>
 
 
 </resources>
