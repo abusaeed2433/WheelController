@@ -15,7 +15,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:visibility="visible"
+        android:visibility="gone"
         android:id="@+id/rlConnection"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -98,7 +98,7 @@
         android:id="@+id/clRoot"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:visibility="invisible"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -114,7 +114,7 @@
             android:layout_marginBottom="2dp"
             android:background="@drawable/stroke_only"
             android:orientation="vertical"
-            android:padding="4dp"
+            android:padding="2dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -129,8 +129,21 @@
                 android:textColor="@color/black"
                 android:textSize="20sp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/buttonShowConnection"
+                app:layout_constraintEnd_toStartOf="@+id/buttonSeeLogs"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <android.widget.Button
+                android:id="@+id/buttonSeeLogs"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#ff0000"
+                android:minHeight="36dp"
+                android:padding="4dp"
+                android:text="@string/see_logs"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/buttonShowConnection"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <android.widget.Button
@@ -138,8 +151,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/blue"
-                android:minHeight="32dp"
-                android:padding="2dp"
+                android:minHeight="36dp"
+                android:padding="4dp"
                 android:text="@string/show"
                 android:textColor="@color/white"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -170,62 +183,26 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_margin="8dp"
-                android:background="@drawable/video_view_background"
-                android:padding="2dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHeight_percent="0.3"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/view">
 
-                <com.example.wheelcontroller.classes.MyProgressBar
-                    android:id="@+id/myProgressLog"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_centerInParent="true"
-                    app:auto_run="true"
-                    app:duration="500"
-                    app:loop="true"
-                    app:pathWidth="2dp" />
-
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:visibility="gone"
-                    android:id="@+id/rvLogs"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    android:orientation="vertical"
-                    app:reverseLayout="false"
-                    tools:listitem="@layout/single_log_layout"
-                    tools:itemCount="5"/>
-
                 <WebView
                     android:id="@+id/webView"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
+                    android:layout_height="match_parent"
+                    android:background="@drawable/video_view_background"/>
 
-                <android.widget.Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonRefresh"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/refresh"
+                    style="@style/Widget.AppCompat.Button.Colored"
+                    android:text="@string/reload"
                     android:elevation="2dp"
                     android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:textColor="@color/black"/>
-
-                <com.google.android.exoplayer2.ui.PlayerView
-                    android:visibility="gone"
-                    android:id="@+id/exoPlayer"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:soundEffectsEnabled="false"
-                    app:controller_layout_id="@layout/custom_controller"
-                    app:hide_on_touch="true"
-                    app:player_layout_id="@layout/exo_styled_player_view"
-                    app:resize_mode="fit"
-                    app:show_timeout="4000"
-                    app:use_controller="true" />
+                    android:layout_alignParentBottom="true" />
 
             </RelativeLayout>
 
@@ -245,13 +222,9 @@
                     android:id="@+id/tvMessage"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_toStartOf="@id/clRightSpeech"
+                    android:layout_alignParentEnd="true"
                     android:gravity="center"
                     android:padding="8dp"
-                    android:shadowColor="#A38C8C"
-                    android:shadowDx="16"
-                    android:shadowDy="16"
-                    android:shadowRadius="6"
                     android:text="@string/not_moving"
                     android:textColor="@color/black"
                     android:textSize="20sp"
@@ -268,7 +241,7 @@
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:contentDescription="@string/mic"
-                        android:src="@drawable/baseline_mic_24"
+                        android:src="@drawable/mic"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"

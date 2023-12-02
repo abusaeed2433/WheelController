@@ -16,7 +16,6 @@ import android.bluetooth.BluetoothManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,7 +29,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,36 +36,18 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.wheelcontroller.classes.BluetoothConnector;
 import com.example.wheelcontroller.classes.DataSaver;
-import com.example.wheelcontroller.classes.EachLog;
-import com.example.wheelcontroller.classes.LogAdapter;
 import com.example.wheelcontroller.classes.Utility;
 import com.example.wheelcontroller.classes.WebSocketClient;
 import com.example.wheelcontroller.databinding.ActivityMainBinding;
 import com.example.wheelcontroller.enums.Command;
 import com.example.wheelcontroller.listener.CommandListener;
 import com.example.wheelcontroller.listener.DatabaseListener;
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.PlaybackException;
-import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
-import com.google.android.exoplayer2.upstream.HttpDataSource;
-import com.google.android.exoplayer2.util.Util;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -77,8 +57,6 @@ import com.google.firebase.database.ValueEventListener;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -88,17 +66,10 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import okhttp3.OkHttpClient;
-
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding = null;
-    private ImageView ivPlayPause;
     private boolean isConnected = false;
     private boolean isProcessing = false;
-    @SuppressWarnings("deprecation")
-    private SimpleExoPlayer simpleExoPlayer = null;
-    @SuppressWarnings("deprecation")
-    private Player.Listener videoListener = null;
     private boolean isDoublePressedOnceWithinTime = false;
     private DatabaseReference historyRef = null;
     private SpeechRecognizer speechRecognizer;
@@ -108,13 +79,9 @@ public class MainActivity extends AppCompatActivity {
     private final List<String> VOICE_COMMANDS = Arrays.asList("বামে যাও","ডানে যাও","সামনে যাও","পিছনে যাও","থামো");
     private final List<String> COMMANDS_MESSAGE  = Arrays.asList("Moving left", "Moving forward", "Moving right", "Moving backward", "Not moving" );
     private boolean stopSpeechInput = false;
-
-    //private MyBTService myBTService = null;
     private BluetoothConnector bluetoothConnector = null;
     private ActivityResultLauncher<Intent> btLauncher = null;
     private boolean isBTConnected = false;
-    private final List<EachLog> allLogs = new ArrayList<>();
-    private LogAdapter logAdapter = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,70 +89,11 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        initializeVideoListener();
-        initializeViews();
         setClickListener();
 
         initializeReferences();
         initializeSpeechPart();
         initBTLauncher();
-
-        initLogAdapter();
-        readLogsIfPossible();
-    }
-
-    private void initLogAdapter(){
-        logAdapter = new LogAdapter(this,allLogs);
-        binding.rvLogs.setAdapter(logAdapter);
-    }
-
-    private void readLogsIfPossible(){
-        String id = DataSaver.getInstance(this).getId();
-
-        DatabaseReference logRef = FirebaseDatabase.getInstance().getReference()
-                .child("chats").child(id).child("rock/logs");
-        logRef.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-                String type = String.valueOf(snapshot.child("type").getValue());
-                String message = String.valueOf(snapshot.child("message").getValue());
-                String ts = String.valueOf(snapshot.child("timestamp").getValue());
-
-                String timestamp = "-- -- ---";
-                try{
-                    long realTs = (long)(Double.parseDouble(ts) * 1000);
-                    timestamp = getFormattedTS(realTs);
-                }catch (Exception ignored){}
-
-                EachLog log = new EachLog(type,message,timestamp);
-                updateLogInAdapter(log);
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
-
-    private void initializeViews(){
-        ivPlayPause = findViewById(R.id.ivPlayPause);
     }
 
     private void setClickListener() {
@@ -198,27 +106,18 @@ public class MainActivity extends AppCompatActivity {
         binding.llBottom.setOnClickListener((View view) -> startExecution(BACKWARD));
         binding.llStartStop.setOnClickListener((View view) -> startExecution(STOP));
 
-        // video player
-        ivPlayPause.setOnClickListener((View v)->{
-            if(simpleExoPlayer.isPlaying()){
-                simpleExoPlayer.setPlayWhenReady(false);
-                ivPlayPause.setImageResource(R.drawable.ic_video_play_circle_filled_24);
-                binding.tvStartStop.setText(getString(R.string.start));
-            }
-            else{
-                simpleExoPlayer.setPlayWhenReady(true);
-                ivPlayPause.setImageResource(R.drawable.ic_video_pause_24);
-                binding.tvStartStop.setText(getString(R.string.stop));
-            }
-
-        });
-
         binding.buttonRefresh.setOnClickListener((View v)-> binding.webView.reload());
         binding.rlGesture.setOnClickListener(v -> hideConnectionView(true));
 
         // speech
         binding.ivSpeech.setOnClickListener((View v)-> startAudio());
         binding.llSpeechRunning.setOnClickListener((View v) -> stopAudio());
+
+        binding.buttonSeeLogs.setOnClickListener((View v)->{
+            startActivity(new Intent(MainActivity.this, LogActivity.class));
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        });
+
     }
 
     private void initBTLauncher() {
@@ -232,112 +131,18 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
-    @SuppressWarnings("deprecation")
-    private void initializeVideoListener(){
-        videoListener = new Player.Listener() {
-            @Override
-            public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-                Player.Listener.super.onPlayerStateChanged(playWhenReady, playbackState);
-                if(playbackState == simpleExoPlayer.STATE_READY){
-                    //todo
-                    //binding.myProgressLog.setVisibility(View.GONE);
-                    //binding.exoPlayer.setVisibility(View.VISIBLE);
-                }
-            }
-
-            @Override
-            public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
-                Player.Listener.super.onPlayWhenReadyChanged(playWhenReady, reason);
-                //todo
-//                binding.rvLogs.setVisibility(View.GONE);
-//                binding.exoPlayer.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onPlayerError(@NonNull PlaybackException error) {
-                //Player.Listener.super.onPlayerError(error);
-                error.printStackTrace();
-//                binding.rvLogs.setVisibility(View.VISIBLE);
-//                binding.exoPlayer.setVisibility(View.GONE);
-            }
-        };
-    }
-
     private void initializeReferences(){
         historyRef = FirebaseDatabase.getInstance().getReference().child("history");
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
     }
 
-    @SuppressWarnings("deprecation")
     private void startPlayer() {
 
-        //binding.myProgressLog.setVisibility(View.VISIBLE);
-        //binding.exoPlayer.setVisibility(View.INVISIBLE);
-
-        if(simpleExoPlayer == null) {
-            simpleExoPlayer = new SimpleExoPlayer.Builder(this).build();
-            binding.exoPlayer.setKeepScreenOn(true);
-            binding.exoPlayer.setPlayer(simpleExoPlayer);
-            simpleExoPlayer.addListener(videoListener);
-        }
-
-        //String url = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
         //String url = "http://192.168.29.150:8081/";
         String url = "https://open-lately-muskox.ngrok-free.app";
-
-        if(simpleExoPlayer != null){
-            Map<String,String> map = new HashMap<>();
-            map.put("ngrok-skip-browser-warning","2442");
-            binding.webView.loadUrl(url,map);
-            return;
-        }
-
-        Map<String, String> headersMap = new HashMap<>();
-        headersMap.put("iid", "aaa123 ");
-        headersMap.put("version", "1.4");
-        headersMap.put("agent", "phone");
-        headersMap.put("ngrok-skip-browser-warning", "2222");
-        DefaultHttpDataSource.Factory factory = new DefaultHttpDataSource.Factory().setDefaultRequestProperties(headersMap);
-
-        DataSource.Factory dataSourceFactory =
-                () -> {
-                    HttpDataSource dataSource = factory.createDataSource();
-                    // Set a custom authentication request header.
-                    dataSource.setRequestProperty("ngrok-skip-browser-warning", "1245");
-                    return dataSource;
-                };
-
-        ExoPlayer exoPlayer =
-                new ExoPlayer.Builder(this).setMediaSourceFactory(
-                                new DefaultMediaSourceFactory(this).setDataSourceFactory(dataSourceFactory))
-                        .build();
-
-//        MediaItem mediaItem = MediaItem.fromUri(url);
-//        MediaSource mediaSource = new ProgressiveMediaSource.Factory(dataSourceFactory)
-//                .createMediaSource(mediaItem);
-
-        MediaSource mediaSource = getMediaSource( Uri.parse(url) );
-        exoPlayer.prepare(mediaSource);
-        exoPlayer.setPlayWhenReady(true);
-    }
-
-    private HttpDataSource.Factory buildHttpDataSourceFactory() {
-        Map<String, String> settings = new HashMap<>();
-        settings.put("Referer", "my_referer_value");
-        return new DefaultHttpDataSource.Factory()
-                .setUserAgent(Util.getUserAgent(this, "your agent"))
-                .setDefaultRequestProperties(settings)
-                .setAllowCrossProtocolRedirects(true);
-    }
-
-    @SuppressWarnings("deprecation")
-    private MediaSource getMediaSource(Uri uri){
-
-        DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(this,
-                Util.getUserAgent(this,"exoplayer"));
-
-        DefaultExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
-        return new ProgressiveMediaSource.Factory(dataSourceFactory,extractorsFactory).createMediaSource(MediaItem.fromUri(uri));
+        Map<String,String> map = new HashMap<>();
+        map.put("ngrok-skip-browser-warning","2442");
+        binding.webView.loadUrl(url,map);
     }
 
     private void startExecution(Command toExecute){
@@ -660,17 +465,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void updateLogInAdapter(EachLog log){
-        allLogs.add(log);
-        binding.myProgressLog.setVisibility(View.GONE);
-
-        logAdapter.notifyItemInserted(allLogs.size()-1);
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-           if(binding == null) return;
-           binding.rvLogs.smoothScrollToPosition(allLogs.size()-1);
-        },120);
-
-    }
 
     private void takeInputAndContinue(){
         Dialog dialog = new Dialog(this);
@@ -852,16 +646,6 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
-    private String getFormattedTS(long ts){
-
-        LocalDateTime ldt = LocalDateTime.ofInstant(Instant.ofEpochMilli(ts), ZoneId.systemDefault());
-
-        String pattern = "EEE MMM dd'\n'hh:mm:ssa";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
-        return formatter.format(ldt).toUpperCase();
-    }
-
-
     private void processVoiceCommand(List<String> voices){
 
         if(voices == null || voices.isEmpty()) {
@@ -871,14 +655,6 @@ public class MainActivity extends AppCompatActivity {
 
         String strCommand = voices.get(0);
         Command realCommand = null;
-
-        //dummy for log
-
-        String timestamp =  getFormattedTS(System.currentTimeMillis());
-        EachLog log = new EachLog("L","Voice command taken through app "+strCommand,timestamp);
-        updateLogInAdapter(log);
-        //dummy for log above
-
 
         Pair<Integer,Integer> minPoint = new Pair<>(Integer.MAX_VALUE,-1); // minDif, index
 
@@ -1041,7 +817,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        simpleExoPlayer.release();
     }
 
     private WebSocketClient mWebSocketClient = null;

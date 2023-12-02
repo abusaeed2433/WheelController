@@ -40,7 +40,7 @@ public class EachLog {
 
         if(type.equals("L")) return Color.YELLOW;
 
-        return Color.WHITE;
+        return Color.BLACK;
     }
 
 }

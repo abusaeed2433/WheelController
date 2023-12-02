@@ -8,7 +8,10 @@
     android:layout_marginEnd="4dp"
     android:layout_marginTop="2dp"
     android:layout_marginBottom="2dp"
-    android:padding="4dp"
+    android:paddingStart="4dp"
+    android:paddingEnd="4dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
     android:background="@drawable/each_log_back" >
 
     <TextView
@@ -18,7 +21,7 @@
         android:background="@drawable/log_type_back"
         android:gravity="center"
         android:fontFamily="serif"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="11sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -47,7 +50,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
         android:background="@drawable/log_type_back"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:gravity="start"
         android:fontFamily="serif"
         android:textSize="11sp"

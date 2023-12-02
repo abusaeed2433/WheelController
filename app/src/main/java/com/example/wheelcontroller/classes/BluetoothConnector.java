@@ -70,7 +70,7 @@ public class BluetoothConnector {
                 //try the fallback
                 try {
                     bluetoothSocket = new FallbackBluetoothSocket(bluetoothSocket.getUnderlyingSocket());
-                    Thread.sleep(500);
+                    Thread.sleep(2500);
                     bluetoothSocket.connect();
                     success = true;
                     System.out.println("bt _ connected");

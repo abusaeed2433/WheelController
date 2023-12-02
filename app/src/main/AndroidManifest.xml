@@ -22,21 +22,30 @@
         android:theme="@style/Theme.WheelController"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        <activity
+            android:name=".LogActivity"
+            android:exported="false"
+            android:theme="@style/fullScreenActivity"
+            android:screenOrientation="portrait"/>
 
         <activity
             android:name=".InstructionActivity"
             android:exported="false"
-            android:theme="@style/fullScreenActivity" />
+            android:theme="@style/fullScreenActivity"
+            android:screenOrientation="portrait"/>
 
         <activity
             android:name=".LoginActivity"
             android:exported="false"
-            android:theme="@style/fullScreenActivity" />
+            android:theme="@style/fullScreenActivity"
+            android:screenOrientation="portrait"/>
+
         <activity
             android:name=".FrontActivity"
             android:exported="true"
             android:noHistory="true"
-            android:theme="@style/fullScreenActivity">
+            android:theme="@style/fullScreenActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -46,7 +55,8 @@
         <activity
             android:name=".MainActivity"
             android:exported="false"
-            android:theme="@style/fullScreenActivity" />
+            android:theme="@style/fullScreenActivity"
+            android:screenOrientation="portrait"/>
 
         <meta-data
             android:name="preloaded_fonts"

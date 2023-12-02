@@ -44,6 +44,8 @@
     <string name="steps_for_operating">Steps for operating</string>
     <string name="dot">.</string>
     <string name="bullet_point">bullet point</string>
+    <string name="reload">Reload</string>
+    <string name="see_logs">See Logs</string>
 
 
 </resources>
