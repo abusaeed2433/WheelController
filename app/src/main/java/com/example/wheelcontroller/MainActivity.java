@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         showOrHideProgress(true);
-        sendInBluetooth(toExecute);
+        sendViaBoth(toExecute);
         saveCommand(toExecute, error -> {
             showOrHideProgress(false);
             if(error == null) {
@@ -177,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void sendInBluetooth(Command toExecute){
+    private void sendViaBoth(Command toExecute){
         bluetoothConnector.sendData(toExecute.getId()+"");
         sendViaSocket(toExecute.getId()+"");
     }
@@ -558,11 +558,12 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             if(snapshot.exists()) {
+
                                 try {
                                     double lastActive = Double.parseDouble( String.valueOf(snapshot.getValue()) );
                                     double curTimeStamp = Instant.now().toEpochMilli() / 1000f;
 
-                                    if (curTimeStamp - lastActive <= 5000) { // 5s
+                                    if (curTimeStamp - lastActive <= 10) { // 10s
                                         listener.onProcessDone(null, name[0]);
                                         binding.tvID.setText(name[0]);
                                     }
@@ -816,6 +817,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        startExecution(STOP);
         super.onDestroy();
     }
 
@@ -826,5 +828,7 @@ public class MainActivity extends AppCompatActivity {
         }
         mWebSocketClient.sendMessage(message);
     }
+
+
 
 }
