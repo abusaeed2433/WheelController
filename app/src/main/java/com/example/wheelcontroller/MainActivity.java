@@ -538,6 +538,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void checkIDPass(String id, String pass, DatabaseListener listener){
+        double curTimeStamp = Instant.now().toEpochMilli() / 1000f;
+
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("users").child(id);
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -561,9 +563,8 @@ public class MainActivity extends AppCompatActivity {
 
                                 try {
                                     double lastActive = Double.parseDouble( String.valueOf(snapshot.getValue()) );
-                                    double curTimeStamp = Instant.now().toEpochMilli() / 1000f;
 
-                                    if (curTimeStamp - lastActive <= 3610) { // 10 sec
+                                    if (curTimeStamp - lastActive <= 10) { // 30 sec
                                         listener.onProcessDone(null, name[0]);
                                         binding.tvID.setText(name[0]);
                                     }
