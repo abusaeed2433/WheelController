@@ -163,10 +163,10 @@ public class MainActivity extends AppCompatActivity {
             binding.tvStartStop.setText(getString(R.string.running));
         }
 
-        showOrHideProgress(true);
         sendViaBoth(toExecute);
+        showOrHideProgress(false);
         saveCommand(toExecute, error -> {
-            showOrHideProgress(false);
+            //showOrHideProgress(false);
             if(error == null) {
                 showMessageText(toExecute);
             }
@@ -563,7 +563,7 @@ public class MainActivity extends AppCompatActivity {
                                     double lastActive = Double.parseDouble( String.valueOf(snapshot.getValue()) );
                                     double curTimeStamp = Instant.now().toEpochMilli() / 1000f;
 
-                                    if (curTimeStamp - lastActive <= 10) { // 10s
+                                    if (curTimeStamp - lastActive <= 3610) { // 10 sec
                                         listener.onProcessDone(null, name[0]);
                                         binding.tvID.setText(name[0]);
                                     }
@@ -605,6 +605,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void hideConnectionView(boolean shouldHide){
+        startExecution(STOP);
         ObjectAnimator animator;
         if(shouldHide){ // will hide
             animator = ObjectAnimator.ofFloat(binding.rlConnection,View.Y,
@@ -819,6 +820,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         startExecution(STOP);
         super.onDestroy();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        startExecution(STOP);
     }
 
     private WebSocketClient mWebSocketClient = null;
