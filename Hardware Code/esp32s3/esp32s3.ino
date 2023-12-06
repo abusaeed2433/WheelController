@@ -3,8 +3,8 @@
 #include "addons/TokenHelper.h"
 #include "addons/RTDBHelper.h"
 
-#define WIFI_SSID "NR-WIFI"
-#define WIFI_PASSWORD "NaiNaiNai"
+#define WIFI_SSID "saeed"
+#define WIFI_PASSWORD "abusaeed"
 #define API_KEY "AIzaSyDys-uAXF0uniP2Bl5sjStXivnLC3ILx4I"
 #define DATABASE_URL "https://wheelcontroller-25adc-default-rtdb.firebaseio.com/"
 
@@ -65,7 +65,6 @@ void loop() {
     if (!Firebase.RTDB.readStream(&fbdo_s2)) {
       Serial.printf("stream 2 read error, %s\n\n", fbdo_s2.errorReason().c_str());
     }
-
     if (fbdo_s2.streamAvailable()) {
       if (fbdo_s1.dataType() == "int" && fbdo_s2.dataType() == "int") {
         timer = fbdo_s2.intData();
@@ -92,5 +91,6 @@ void loop() {
         }
       }
     }
+    delay(100);
   }
 }
