@@ -11,7 +11,7 @@ import okio.ByteString;
 
 public class WebSocketClient {
     //private static final String WEBSOCKET_URL = "ws://27.147.190.170:8000";
-    private static final String WEBSOCKET_URL = "ws://192.168.29.150:8000";
+    private static final String WEBSOCKET_URL = "ws://192.168.29.150:8001";
     private WebSocket webSocket = null;
 
     public WebSocketClient() {

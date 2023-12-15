@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
 
         Map<String,Object> map = new HashMap<>();
 
-        long utc = Instant.now().getEpochSecond();
+        long utc = Instant.now().getNano();
         map.put("time",utc);
         map.put("command",command.getId());
 
@@ -564,7 +564,7 @@ public class MainActivity extends AppCompatActivity {
                                 try {
                                     double lastActive = Double.parseDouble( String.valueOf(snapshot.getValue()) );
 
-                                    if (curTimeStamp - lastActive <= 10) { // 30 sec
+                                    if (curTimeStamp - lastActive <= 2000) { // 30 sec
                                         listener.onProcessDone(null, name[0]);
                                         binding.tvID.setText(name[0]);
                                     }
@@ -834,9 +834,8 @@ public class MainActivity extends AppCompatActivity {
         if(mWebSocketClient == null){
             mWebSocketClient = new WebSocketClient();
         }
+        System.out.println("Command sent at: "+System.currentTimeMillis());
         mWebSocketClient.sendMessage(message);
     }
-
-
 
 }
